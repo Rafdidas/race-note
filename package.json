@@ -16,8 +16,10 @@
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.7",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.9",
+    "pretendard": "^1.3.9",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

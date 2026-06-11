@@ -1,3 +1,21 @@
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.type-korean {
+  font-family: var(--font-korean);
+}
+
+.type-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
