@@ -35,3 +35,15 @@ npm run db:migrate:remote
 ```
 
 Cloudflare 배포 전 `wrangler.jsonc`의 D1 `database_id`를 실제 값으로 변경해야 합니다.
+
+## Cloudflare Builds
+
+Cloudflare Workers Builds에서는 다음 명령을 사용합니다.
+
+```txt
+Build command: npm run cf:build
+Deploy command: npx wrangler deploy
+```
+
+`npm run build`는 일반 Next.js 빌드만 생성하므로 Cloudflare 배포에 필요한
+`.open-next` 산출물을 만들지 않습니다.
