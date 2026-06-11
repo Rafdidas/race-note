@@ -1,0 +1,37 @@
+.status-badge {
+  align-items: center;
+  border: 1px solid var(--color-line-strong);
+  display: inline-flex;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  min-height: 24px;
+  padding: 3px 7px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &--success,
+  &--published,
+  &--reviewed {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  &--failed {
+    border-color: var(--color-f1);
+    color: var(--color-f1);
+  }
+
+  &--partial,
+  &--needs-review,
+  &--generated {
+    border-color: var(--color-wec);
+    color: var(--color-wec);
+  }
+
+  &--draft,
+  &--empty {
+    color: var(--color-text-muted);
+  }
+}

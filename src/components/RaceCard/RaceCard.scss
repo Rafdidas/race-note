@@ -1,0 +1,116 @@
+@use "../../styles/abstracts/mixins" as *;
+
+.race-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  padding: clamp(20px, 2.5vw, 34px);
+  position: relative;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+
+  &::after {
+    background: var(--color-line-strong);
+    content: "";
+    height: 1px;
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    transform: rotate(-45deg);
+    width: 12px;
+  }
+
+  &:hover {
+    background: var(--color-surface-raised);
+    border-color: var(--color-line-strong);
+    transform: translateY(-4px);
+
+    .race-card__action {
+      color: var(--color-accent);
+    }
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &__top,
+  &__schedule {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__index,
+  &__status,
+  &__schedule,
+  &__action {
+    @include overline;
+  }
+
+  &__body {
+    margin-top: clamp(54px, 7vw, 90px);
+  }
+
+  &__status {
+    color: var(--color-accent);
+  }
+
+  h3 {
+    font-size: clamp(1.55rem, 2.4vw, 2.4rem);
+    font-weight: 500;
+    letter-spacing: -0.06em;
+    line-height: 1.02;
+    margin: 14px 0;
+    max-width: 11ch;
+    text-transform: uppercase;
+  }
+
+  &__location,
+  &__summary {
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  &__location {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+  }
+
+  &__schedule {
+    border-block: 1px solid var(--color-line);
+    margin-top: auto;
+    padding-block: 16px;
+  }
+
+  &__must-watch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 18px;
+
+    span {
+      border: 1px solid var(--color-line-strong);
+      color: var(--color-text-muted);
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      padding: 5px 7px;
+      text-transform: uppercase;
+    }
+  }
+
+  &__summary {
+    font-size: 0.84rem;
+    line-height: 1.75;
+    margin-top: 22px;
+  }
+
+  &__action {
+    margin-top: 28px;
+    transition: color var(--transition-fast);
+  }
+}

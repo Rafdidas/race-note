@@ -1,0 +1,46 @@
+@use "../../styles/abstracts/mixins" as *;
+
+.empty-state {
+  margin-inline: auto;
+  max-width: var(--container-width);
+  min-height: calc(100svh - 220px);
+  padding: clamp(70px, 10vw, 150px) var(--page-gutter);
+
+  h1 {
+    font-size: clamp(3.5rem, 10vw, 10rem);
+    font-weight: 600;
+    letter-spacing: -0.1em;
+    line-height: 0.82;
+    margin: clamp(70px, 10vw, 140px) 0 30px -0.08em;
+    max-width: 9ch;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+    max-width: 34rem;
+  }
+
+  &__action {
+    @include overline;
+
+    border: 1px solid var(--color-line-strong);
+    display: inline-block;
+    margin-top: 32px;
+    padding: 12px 16px;
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast);
+
+    &:hover {
+      background: var(--color-accent);
+      color: var(--color-accent-ink);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+}

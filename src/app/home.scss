@@ -1,0 +1,215 @@
+@use "../styles/abstracts/mixins" as *;
+
+.home {
+  overflow: hidden;
+
+  &__hero {
+    border-bottom: 1px solid var(--color-line);
+    min-height: min(720px, calc(100svh - 72px));
+    padding-block: clamp(56px, 9vw, 130px) 36px;
+    position: relative;
+
+    &::before {
+      border: 1px solid var(--color-line);
+      border-radius: 50%;
+      content: "";
+      height: min(52vw, 740px);
+      position: absolute;
+      right: max(-18vw, -260px);
+      top: -12vw;
+      width: min(52vw, 740px);
+    }
+
+    &::after {
+      background: var(--color-accent);
+      content: "";
+      height: 7px;
+      position: absolute;
+      right: var(--page-gutter);
+      top: 34px;
+      width: 7px;
+    }
+  }
+
+  &__hero-title {
+    font-size: clamp(4.2rem, 14vw, 13.5rem);
+    font-weight: 600;
+    letter-spacing: -0.105em;
+    line-height: 0.78;
+    margin: clamp(70px, 12vw, 150px) 0 0 -0.08em;
+    max-width: 7ch;
+    position: relative;
+    text-transform: uppercase;
+    z-index: 1;
+  }
+
+  &__hero-bottom {
+    align-items: end;
+    display: grid;
+    gap: 30px;
+    grid-template-columns: 1fr 1fr;
+    margin-top: clamp(70px, 10vw, 140px);
+  }
+
+  &__hero-copy {
+    color: var(--color-text-muted);
+    font-size: clamp(0.88rem, 1.2vw, 1rem);
+    line-height: 1.8;
+    margin: 0;
+    max-width: 34rem;
+  }
+
+  &__hero-period {
+    @include overline;
+
+    align-items: center;
+    display: flex;
+    gap: 18px;
+    justify-content: flex-end;
+
+    strong {
+      color: var(--color-text);
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+    }
+  }
+
+  &__briefing {
+    padding-top: var(--section-space);
+  }
+
+  &__briefing-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    margin-top: 30px;
+  }
+
+  &__next-session,
+  &__guide {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    min-height: 300px;
+    padding: clamp(22px, 3vw, 40px);
+  }
+
+  &__next-session {
+    display: grid;
+    grid-template-columns: 1fr auto;
+
+    h2 {
+      align-self: end;
+      font-size: clamp(2.3rem, 5vw, 5.6rem);
+      font-weight: 500;
+      letter-spacing: -0.08em;
+      line-height: 0.92;
+      margin: 36px 0 0;
+      max-width: 10ch;
+      text-transform: uppercase;
+    }
+  }
+
+  &__next-time {
+    align-self: end;
+    color: var(--color-accent);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    text-align: right;
+
+    span {
+      color: var(--color-text-muted);
+      display: block;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+  }
+
+  &__guide {
+    display: flex;
+    flex-direction: column;
+
+    p {
+      color: var(--color-text-muted);
+      font-size: 0.84rem;
+      line-height: 1.75;
+      margin: auto 0 24px;
+    }
+  }
+
+  &__guide-codes {
+    color: var(--color-text);
+    display: flex;
+    font-size: clamp(1.5rem, 3vw, 2.8rem);
+    gap: 12px;
+    letter-spacing: -0.07em;
+  }
+
+  &__guide-link {
+    @include overline;
+
+    border-top: 1px solid var(--color-line);
+    padding-top: 16px;
+
+    &:hover {
+      color: var(--color-accent);
+    }
+  }
+
+  &__races {
+    padding-top: var(--section-space);
+  }
+
+  &__section-heading {
+    align-items: end;
+    display: flex;
+    justify-content: space-between;
+
+    h2 {
+      font-size: clamp(2.4rem, 6vw, 6rem);
+      font-weight: 500;
+      letter-spacing: -0.085em;
+      line-height: 0.9;
+      margin: 30px 0 0;
+      text-transform: uppercase;
+    }
+
+    p {
+      @include overline;
+
+      margin: 0;
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .home {
+    &__hero {
+      min-height: auto;
+    }
+
+    &__hero-bottom,
+    &__briefing-grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__hero-period {
+      justify-content: flex-start;
+    }
+
+    &__next-session {
+      grid-template-columns: 1fr;
+    }
+
+    &__next-time {
+      margin-top: 48px;
+      text-align: left;
+    }
+
+    &__section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 24px;
+    }
+  }
+}

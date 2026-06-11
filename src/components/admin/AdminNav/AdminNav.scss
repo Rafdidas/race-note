@@ -1,0 +1,107 @@
+@use "../../../styles/abstracts/mixins" as *;
+
+.admin-nav {
+  background: var(--color-text);
+  color: var(--color-canvas);
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: 30px 24px;
+  position: sticky;
+  top: 0;
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    strong {
+      color: var(--color-accent);
+      font-size: 1.3rem;
+      letter-spacing: -0.08em;
+    }
+
+    span {
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 90px;
+
+    a {
+      align-items: center;
+      border-top: 1px solid color-mix(in srgb, var(--color-canvas) 20%, transparent);
+      display: flex;
+      font-size: 0.68rem;
+      gap: 14px;
+      letter-spacing: 0.08em;
+      padding: 15px 0;
+      text-transform: uppercase;
+
+      &:hover {
+        color: var(--color-accent);
+      }
+
+      span {
+        color: var(--color-text-faint);
+        font-size: 0.58rem;
+      }
+    }
+  }
+
+  &__footer {
+    @include overline;
+
+    align-items: center;
+    color: var(--color-canvas);
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  &__signal {
+    background: var(--color-accent);
+    height: 6px;
+    width: 6px;
+  }
+}
+
+@media (max-width: 850px) {
+  .admin-nav {
+    min-height: auto;
+    padding: 16px 18px;
+    position: static;
+
+    &__brand {
+      align-items: center;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    nav {
+      flex-direction: row;
+      margin-top: 18px;
+
+      a {
+        border: 1px solid color-mix(in srgb, var(--color-canvas) 20%, transparent);
+        flex: 1;
+        justify-content: center;
+        padding: 10px 5px;
+
+        span {
+          display: none;
+        }
+      }
+    }
+
+    &__footer {
+      display: none;
+    }
+  }
+}

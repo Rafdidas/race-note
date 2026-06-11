@@ -1,0 +1,280 @@
+@use "../styles/abstracts/mixins" as *;
+
+.public-page {
+  &__content {
+    padding-top: var(--section-space);
+  }
+}
+
+.series-page {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  &__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+    min-height: 570px;
+    padding: clamp(22px, 3vw, 38px);
+
+    h2 {
+      font-size: clamp(1.7rem, 3vw, 3rem);
+      font-weight: 500;
+      letter-spacing: -0.07em;
+      line-height: 1;
+      margin: 14px 0 0;
+      max-width: 10ch;
+      text-transform: uppercase;
+    }
+  }
+
+  &__card-top {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    > span {
+      @include overline;
+    }
+  }
+
+  &__format {
+    @include overline;
+
+    color: var(--color-wrc);
+    margin: 90px 0 0;
+  }
+
+  &__description {
+    color: var(--color-text-muted);
+    font-size: 0.84rem;
+    line-height: 1.8;
+    margin: 30px 0 0;
+  }
+
+  &__keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 50px;
+
+    span {
+      border: 1px solid var(--color-line-strong);
+      color: var(--color-text-muted);
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      padding: 5px 7px;
+      text-transform: uppercase;
+    }
+  }
+
+  &__first {
+    border-top: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+    margin-top: 24px;
+    padding-top: 16px;
+
+    span {
+      @include overline;
+    }
+
+    strong {
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+  }
+
+  &__comparison {
+    padding-top: var(--section-space);
+  }
+
+  &__comparison-grid {
+    border-top: 1px solid var(--color-line-strong);
+    display: grid;
+    gap: 50px;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 30px;
+    padding-top: 34px;
+
+    p {
+      font-size: clamp(1.2rem, 2.5vw, 2.1rem);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+
+      span {
+        border-bottom: 1px solid var(--color-line);
+        font-size: clamp(1.1rem, 2vw, 1.7rem);
+        letter-spacing: -0.04em;
+        padding: 16px 0;
+        text-transform: uppercase;
+      }
+    }
+  }
+}
+
+.race-detail {
+  &__hero {
+    border-bottom: 1px solid var(--color-line);
+    padding-block: clamp(70px, 11vw, 160px) clamp(44px, 7vw, 90px);
+  }
+
+  &__top,
+  &__meta {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__top > span,
+  &__meta span {
+    @include overline;
+  }
+
+  h1 {
+    font-size: clamp(3.5rem, 10vw, 10rem);
+    font-weight: 600;
+    letter-spacing: -0.105em;
+    line-height: 0.82;
+    margin: clamp(65px, 10vw, 130px) 0;
+    max-width: 11ch;
+    text-transform: uppercase;
+  }
+
+  &__meta {
+    border-top: 1px solid var(--color-line);
+    padding-top: 18px;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    padding-top: var(--section-space);
+  }
+
+  &__schedule,
+  &__must-watch,
+  &__brief,
+  &__note,
+  &__variables {
+    border: 1px solid var(--color-line);
+    padding: clamp(22px, 3vw, 40px);
+
+    > .section-label {
+      margin-bottom: 34px;
+    }
+  }
+
+  &__must-watch {
+    background: var(--color-surface);
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      span {
+        font-size: clamp(1.25rem, 2.5vw, 2.3rem);
+        letter-spacing: -0.05em;
+        text-transform: uppercase;
+      }
+    }
+
+    p {
+      border-top: 1px solid var(--color-line);
+      color: var(--color-text-muted);
+      font-size: 0.84rem;
+      line-height: 1.8;
+      margin: 60px 0 0;
+      padding-top: 20px;
+    }
+  }
+
+  &__brief {
+    grid-column: 1 / -1;
+
+    ol {
+      counter-reset: brief;
+      list-style: none;
+
+      li {
+        border-top: 1px solid var(--color-line);
+        counter-increment: brief;
+        font-size: clamp(1rem, 2vw, 1.55rem);
+        line-height: 1.65;
+        padding: 22px 0 22px 70px;
+        position: relative;
+
+        &::before {
+          @include overline;
+
+          color: var(--color-wrc);
+          content: "0" counter(brief);
+          left: 0;
+          position: absolute;
+          top: 28px;
+        }
+      }
+    }
+  }
+
+  &__note p {
+    color: var(--color-text-muted);
+    font-size: clamp(1rem, 1.8vw, 1.35rem);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  &__variables div {
+    display: flex;
+    flex-direction: column;
+
+    span {
+      border-top: 1px solid var(--color-line);
+      font-size: 1rem;
+      padding: 16px 0;
+      text-transform: uppercase;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .series-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .series-page__card {
+    min-height: 430px;
+  }
+
+  .race-detail__content {
+    grid-template-columns: 1fr;
+  }
+
+  .race-detail__brief {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 650px) {
+  .series-page__comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .race-detail__meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}

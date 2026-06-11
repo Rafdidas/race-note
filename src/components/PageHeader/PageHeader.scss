@@ -1,0 +1,44 @@
+@use "../../styles/abstracts/mixins" as *;
+
+.page-header {
+  border-bottom: 1px solid var(--color-line);
+  padding-block: clamp(70px, 10vw, 145px) clamp(38px, 6vw, 80px);
+
+  &__grid {
+    align-items: end;
+    display: grid;
+    gap: 40px;
+    grid-template-columns: 2fr 1fr;
+    margin-top: clamp(55px, 9vw, 120px);
+  }
+
+  h1 {
+    font-size: clamp(4rem, 11vw, 11rem);
+    font-weight: 600;
+    letter-spacing: -0.105em;
+    line-height: 0.78;
+    margin: 0 0 0 -0.08em;
+    text-transform: uppercase;
+  }
+
+  &__copy {
+    p {
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+      margin: 0 0 30px;
+      max-width: 30rem;
+    }
+
+    span {
+      @include overline;
+    }
+  }
+}
+
+@media (max-width: 760px) {
+  .page-header__grid {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,17 @@
+@use "../../styles/abstracts/mixins" as *;
+
+.section-label {
+  @include overline;
+
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+
+  &__index {
+    color: var(--color-accent);
+  }
+
+  &__divider {
+    color: var(--color-line-strong);
+  }
+}

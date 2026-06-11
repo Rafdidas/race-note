@@ -1,6 +1,7 @@
 body {
   font-family: var(--font-body);
   font-synthesis: none;
+  line-height: 1.5;
   text-rendering: optimizeLegibility;
 }
 
@@ -18,4 +19,9 @@ textarea {
 .type-mono {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
 }

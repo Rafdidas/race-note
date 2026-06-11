@@ -1,1 +1,6 @@
-// Shared layout rules will be added after the design reference is finalized.
+.container {
+  margin-inline: auto;
+  max-width: var(--container-width);
+  padding-inline: var(--page-gutter);
+  width: 100%;
+}

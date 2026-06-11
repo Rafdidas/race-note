@@ -2,4 +2,23 @@
   --font-body: "IBM Plex Mono", "Pretendard Variable", Pretendard, sans-serif;
   --font-korean: "Pretendard Variable", Pretendard, sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
+
+  --color-canvas: #e9ebe4;
+  --color-surface: #f2f3ed;
+  --color-surface-raised: #fafbf6;
+  --color-text: #171914;
+  --color-text-muted: #676c62;
+  --color-text-faint: #8d9288;
+  --color-line: #c9cdc2;
+  --color-line-strong: #959b8e;
+  --color-accent: #b9ed3b;
+  --color-accent-ink: #171914;
+  --color-f1: #d84d3f;
+  --color-wec: #3674b8;
+  --color-wrc: #608313;
+
+  --container-width: 1440px;
+  --page-gutter: clamp(18px, 3vw, 48px);
+  --section-space: clamp(72px, 10vw, 148px);
+  --transition-fast: 180ms ease;
 }

@@ -1,1 +1,14 @@
-// Shared SCSS mixins will be added with the component styles.
+@mixin overline {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+@mixin focus-ring {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 4px;
+}

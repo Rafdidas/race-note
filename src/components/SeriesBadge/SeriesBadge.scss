@@ -1,0 +1,28 @@
+.series-badge {
+  align-items: center;
+  color: var(--series-color);
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 0.69rem;
+  font-weight: 700;
+  gap: 0.5rem;
+  letter-spacing: 0.12em;
+
+  &__mark {
+    background: currentColor;
+    height: 7px;
+    width: 7px;
+  }
+
+  &--f1 {
+    --series-color: var(--color-f1);
+  }
+
+  &--wec {
+    --series-color: var(--color-wec);
+  }
+
+  &--wrc {
+    --series-color: var(--color-wrc);
+  }
+}
