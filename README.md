@@ -34,7 +34,9 @@ npm run db:migrate:local
 npm run db:migrate:remote
 ```
 
-Cloudflare 배포 전 `wrangler.jsonc`의 D1 `database_id`를 실제 값으로 변경해야 합니다.
+현재 초기 배포 설정에는 D1 바인딩이 활성화되어 있지 않습니다. D1 데이터베이스를
+생성한 뒤 `wrangler.d1.example.jsonc`의 `d1_databases` 블록을 `wrangler.jsonc`에
+복사하고 실제 `database_id`로 변경합니다.
 
 ## Cloudflare Builds
 
