@@ -67,3 +67,14 @@ Deploy command: npx wrangler deploy
 
 `npm run build`는 일반 Next.js 빌드만 생성하므로 Cloudflare 배포에 필요한
 `.open-next` 산출물을 만들지 않습니다.
+
+현재 Windows 환경에서는 OpenNext 자동 배포가 로컬 `workerd`의 `write EOF`로
+실패합니다. `npm run cf:build` 후 다음 명령으로 직접 배포합니다.
+
+```powershell
+$env:OPEN_NEXT_DEPLOY="true"
+npx wrangler deploy
+```
+
+production 빌드는 Windows OpenNext의 Turbopack 서버 청크 누락을 피하기 위해
+Webpack을 사용합니다.

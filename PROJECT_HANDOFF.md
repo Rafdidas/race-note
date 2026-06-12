@@ -26,6 +26,7 @@
 - 로컬 D1 설정과 반복 실행 가능한 공개 화면 seed SQL을 추가했습니다.
 - 공개 화면용 Drizzle D1 조회 계층과 화면 모델 변환 테스트를 준비했습니다.
 - 홈, 캘린더, 레이스 상세, 시리즈 공개 화면을 원격 D1 조회 계층으로 교체했습니다.
+- Cloudflare Worker에 배포하고 공개 화면의 원격 D1 런타임 조회를 검증했습니다.
 - `/admin/login`, `/admin`, `/admin/sync`, `/admin/races`,
   `/admin/races/[id]` 관리자 운영 UI를 목업 데이터로 구현했습니다.
 - 관리자 인증, 동기화, 저장, AI 생성, 공개 액션은 실제 D1 연결 전까지
@@ -239,6 +240,22 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
 `npm run db:generate`는 아래 Known Notes의 현재 이슈로 인해 검증 목록에서
 제외했습니다.
 
+배포 URL:
+
+```txt
+https://race-note.rafdi.workers.dev
+```
+
+Windows의 Turbopack 기반 OpenNext 번들은 서버 청크가 누락되어 배포 후
+`ChunkLoadError`가 발생했습니다. production 빌드를 `next build --webpack`으로
+고정해 해결했습니다. Windows에서 OpenNext 자동 배포는 로컬 `workerd`의
+`write EOF`로 실패하므로, 빌드 후 다음 방식으로 직접 배포합니다.
+
+```powershell
+$env:OPEN_NEXT_DEPLOY="true"
+npx wrangler deploy
+```
+
 테마 구현 후 브라우저에서 다음을 검증했습니다.
 
 - 시스템 다크 설정을 따르는 첫 방문
@@ -260,6 +277,9 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
 - 원격 D1 `PRAGMA foreign_key_check`: 오류 없음
 - `wrangler deploy --dry-run`: `env.DB` → `racenote-db` 바인딩 확인
 - 공개 경로 `/`, `/calendar`, `/races/[slug]`, `/series`: 동적 렌더링 빌드 확인
+- 배포된 홈, 캘린더, 레이스 상세, 시리즈, 관리자 경로: HTTP 200
+- 배포된 공개 화면에서 원격 D1 seed 콘텐츠 확인
+- 존재하지 않는 공개 레이스 slug: HTTP 404
 
 ## Known Notes
 
@@ -270,6 +290,7 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
   사용자가 만든 상태일 수 있으므로 명시적 요청 없이 삭제하지 않습니다.
 - `.env`와 실제 Cloudflare/D1 비밀값은 Git에 커밋하지 않습니다.
 - Cloudflare API 토큰은 로컬 `.env.local`에만 저장하며 Git에 커밋하지 않습니다.
+- 현재 API 토큰에는 D1 편집과 Worker 배포 권한이 있습니다.
 - 현재 설치된 `drizzle-kit 0.31.10`에서 전체 스키마를 대상으로 `npm run
   db:generate`를 실행하면 오류 없이 무응답 상태로 멈춥니다. 스키마는 Next 빌드와
   Node 직접 import로 검증했고, 초기 SQL은 수동으로 추가해 SQLite 적용 검증했습니다.
@@ -282,18 +303,16 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
 
 ## Next Work Boundary
 
-공개 화면의 원격 D1 조회 연결, 관리자 운영 UI, MVP Drizzle 스키마와 초기 SQL
-마이그레이션 구현을 완료했습니다. 관리자 화면은 현재 목업 데이터 기반이며 모든
-변경 액션은 비활성화되어 있습니다. 공개 화면의 실제 Cloudflare 요청 검증은 Worker
-배포 후 진행해야 합니다.
+공개 화면의 원격 D1 조회 연결과 Cloudflare 배포 검증, 관리자 운영 UI, MVP
+Drizzle 스키마와 초기 SQL 마이그레이션 구현을 완료했습니다. 관리자 화면은 현재
+목업 데이터 기반이며 모든 변경 액션은 비활성화되어 있습니다.
 
 권장 다음 순서:
 
-1. Worker 배포 후 공개 화면의 원격 D1 런타임 조회 검증
-2. 관리자 화면 목업 데이터를 D1 조회로 교체
-3. 관리자 비밀번호 인증과 httpOnly 세션 구현
-4. 관리자 저장·검수·공개 액션 구현
-5. 일정 수집·AI 생성 작업 구현
+1. 관리자 화면 목업 데이터를 D1 조회로 교체
+2. 관리자 비밀번호 인증과 httpOnly 세션 구현
+3. 관리자 저장·검수·공개 액션 구현
+4. 일정 수집·AI 생성 작업 구현
 
 ## New Session Starter Prompt
 
