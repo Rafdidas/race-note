@@ -8,6 +8,14 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "racenote-db",
+      "database_id": "2e4290dd-a426-4b6b-b6a4-677f0c5975b3",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ],
   "observability": {
     "enabled": true
   }

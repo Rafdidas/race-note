@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { CalendarSchedule } from "@/components/CalendarSchedule/CalendarSchedule";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
+import { getPublishedSessions } from "@/lib/public-data";
 
 export const metadata: Metadata = {
   title: "Calendar",
   description: "F1, WEC, WRC 통합 일정",
 };
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
+  const sessions = await getPublishedSessions();
+
   return (
     <div className="public-page">
       <PageHeader
@@ -18,7 +21,7 @@ export default function CalendarPage() {
         title="Calendar"
       />
       <section className="public-page__content container">
-        <CalendarSchedule />
+        <CalendarSchedule sessions={sessions} />
       </section>
     </div>
   );

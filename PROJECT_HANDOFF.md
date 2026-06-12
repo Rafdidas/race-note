@@ -25,6 +25,7 @@
   추가했습니다.
 - 로컬 D1 설정과 반복 실행 가능한 공개 화면 seed SQL을 추가했습니다.
 - 공개 화면용 Drizzle D1 조회 계층과 화면 모델 변환 테스트를 준비했습니다.
+- 홈, 캘린더, 레이스 상세, 시리즈 공개 화면을 원격 D1 조회 계층으로 교체했습니다.
 - `/admin/login`, `/admin`, `/admin/sync`, `/admin/races`,
   `/admin/races/[id]` 관리자 운영 UI를 목업 데이터로 구현했습니다.
 - 관리자 인증, 동기화, 저장, AI 생성, 공개 액션은 실제 D1 연결 전까지
@@ -165,8 +166,9 @@ drizzle/
 ```
 
 Drizzle 스키마와 `drizzle/0000_initial.sql` 초기 마이그레이션을 구현했습니다.
-공개 화면과 관리자 화면은 아직 정적 목업을 사용합니다. 실제 원격 D1 생성과
-바인딩 후 공개 화면부터 `src/lib/public-data.ts`의 D1 조회로 교체할 예정입니다.
+공개 화면은 배포 환경에서 `src/lib/public-data.ts`의 원격 D1 조회를 사용합니다.
+현재 Windows의 `workerd` 문제를 피하기 위해 `next dev`에서만 기존 목 데이터를
+fallback으로 사용합니다. 관리자 화면은 아직 정적 목업을 사용합니다.
 
 로컬 개발 설정:
 
@@ -187,10 +189,8 @@ Deploy command: npx wrangler deploy
 
 `npm run build`만 사용하면 `.open-next` 산출물이 없어 배포가 실패합니다.
 
-D1 바인딩은 현재 `wrangler.jsonc`에서 제거된 상태입니다. 자리표시자 ID를 활성
-설정에 두면 Cloudflare 배포가 실패하기 때문입니다. 실제 D1 데이터베이스 생성 후
-`wrangler.d1.example.jsonc`의 블록을 `wrangler.jsonc`에 복사하고 실제
-`database_id`를 입력합니다.
+D1 바인딩 `DB`는 원격 `racenote-db`에 연결되어 있습니다. 초기 마이그레이션과
+공개 화면 확인용 seed도 원격 DB에 적용했습니다.
 
 ### D1 Connection Resume Point
 
@@ -202,9 +202,9 @@ Cloudflare account ID: 94170803d79901358ea300e1f74a6ee7
 Target D1 database name: racenote-db
 ```
 
-현재 API 토큰이 없어 Wrangler CLI 인증과 D1 데이터베이스 생성은 진행하지
-않았습니다. 토큰을 준비한 뒤 `.env.local` 또는 안전한 셸 환경변수에 다음 값을
-설정하고 작업을 재개합니다. 실제 토큰은 Git에 커밋하지 않습니다.
+2026-06-12에 API 토큰을 준비해 Wrangler의 D1 접근을 확인했고, 실제
+`racenote-db` 바인딩과 초기 데이터를 적용했습니다. 실제 토큰은 Git에 커밋하지
+않습니다.
 
 ```txt
 CLOUDFLARE_ACCOUNT_ID=94170803d79901358ea300e1f74a6ee7
@@ -213,13 +213,13 @@ CLOUDFLARE_D1_TOKEN=
 
 토큰에는 최소한 해당 계정의 D1 데이터베이스 생성·편집 권한이 필요합니다.
 
-재개 순서:
+완료한 항목:
 
-1. Wrangler 인증 상태 확인
-2. `racenote-db` 생성
-3. 출력된 `database_id`를 `wrangler.jsonc` D1 바인딩에 반영
-4. `drizzle/0000_initial.sql` 원격 적용
-5. 원격 D1에서 8개 테이블과 외래키 상태 검증
+1. Wrangler D1 권한 확인
+2. `racenote-db` 생성 및 `DB` 바인딩 반영
+3. `drizzle/migrations/0000_initial.sql` 원격 적용
+4. `drizzle/seed.sql` 원격 적용
+5. 원격 D1 데이터 개수와 외래키 상태 검증
 
 ## Commands Verified
 
@@ -256,6 +256,10 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
 - SQLite `PRAGMA foreign_key_check`: 오류 없음
 - D1 조회 계층과 공개 화면 모델의 TypeScript 빌드
 - `npm run cf:build` 통과
+- 원격 D1 seed 결과: series 3, races 3, sessions 9, race_contents 3
+- 원격 D1 `PRAGMA foreign_key_check`: 오류 없음
+- `wrangler deploy --dry-run`: `env.DB` → `racenote-db` 바인딩 확인
+- 공개 경로 `/`, `/calendar`, `/races/[slug]`, `/series`: 동적 렌더링 빌드 확인
 
 ## Known Notes
 
@@ -265,8 +269,7 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
 - 저장소 루트 아래에 추적되지 않은 `race-note/.git` 빈 중첩 저장소가 보입니다.
   사용자가 만든 상태일 수 있으므로 명시적 요청 없이 삭제하지 않습니다.
 - `.env`와 실제 Cloudflare/D1 비밀값은 Git에 커밋하지 않습니다.
-- Cloudflare 대시보드 로그인은 완료했지만 API 토큰이 없어 D1 생성 단계에서
-  중단했습니다. 위 `D1 Connection Resume Point`부터 재개합니다.
+- Cloudflare API 토큰은 로컬 `.env.local`에만 저장하며 Git에 커밋하지 않습니다.
 - 현재 설치된 `drizzle-kit 0.31.10`에서 전체 스키마를 대상으로 `npm run
   db:generate`를 실행하면 오류 없이 무응답 상태로 멈춥니다. 스키마는 Next 빌드와
   Node 직접 import로 검증했고, 초기 SQL은 수동으로 추가해 SQLite 적용 검증했습니다.
@@ -274,23 +277,23 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
 - 현재 Windows 환경에서 `workerd.exe`가 직접 실행되지 않으며 Wrangler 로컬 D1
   명령과 `next dev`의 D1 바인딩 초기화가 `write EOF`로 실패합니다. Wrangler
   4.99.0/4.100.0과 Node 22/24에서 동일하게 재현했습니다. SQL과 OpenNext 빌드는
-  검증됐으며, 로컬 런타임 확인은 WSL 또는 workerd가 실행 가능한 환경에서
-  재개해야 합니다.
+  검증됐으며, `next dev` 공개 화면은 목 데이터 fallback을 사용합니다. 실제 로컬
+  D1 런타임 확인은 WSL 또는 workerd가 실행 가능한 환경에서 재개해야 합니다.
 
 ## Next Work Boundary
 
-공개 화면용 D1 조회 계층 준비, 관리자 운영 UI, MVP Drizzle 스키마와 초기 SQL
-마이그레이션 구현을 완료했습니다. 공개/관리자 화면은 현재 목업 데이터 기반이며
-모든 변경 액션은 비활성화되어 있습니다.
+공개 화면의 원격 D1 조회 연결, 관리자 운영 UI, MVP Drizzle 스키마와 초기 SQL
+마이그레이션 구현을 완료했습니다. 관리자 화면은 현재 목업 데이터 기반이며 모든
+변경 액션은 비활성화되어 있습니다. 공개 화면의 실제 Cloudflare 요청 검증은 Worker
+배포 후 진행해야 합니다.
 
 권장 다음 순서:
 
-1. Cloudflare API 토큰 준비 후 실제 D1 생성, 바인딩, 마이그레이션, seed 적용
-2. 공개 화면을 준비된 D1 조회 계층으로 교체하고 원격 D1 검증
-3. 관리자 화면 목업 데이터를 D1 조회로 교체
-4. 관리자 비밀번호 인증과 httpOnly 세션 구현
-5. 관리자 저장·검수·공개 액션 구현
-6. 일정 수집·AI 생성 작업 구현
+1. Worker 배포 후 공개 화면의 원격 D1 런타임 조회 검증
+2. 관리자 화면 목업 데이터를 D1 조회로 교체
+3. 관리자 비밀번호 인증과 httpOnly 세션 구현
+4. 관리자 저장·검수·공개 액션 구현
+5. 일정 수집·AI 생성 작업 구현
 
 ## New Session Starter Prompt
 

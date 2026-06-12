@@ -13,7 +13,7 @@
       "binding": "DB",
       "database_name": "racenote-db",
       "database_id": "00000000-0000-0000-0000-000000000001",
-      "migrations_dir": "drizzle"
+      "migrations_dir": "drizzle/migrations"
     }
   ]
 }

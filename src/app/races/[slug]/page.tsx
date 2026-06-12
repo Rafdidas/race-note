@@ -3,13 +3,7 @@ import { notFound } from "next/navigation";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
 import { SessionList } from "@/components/SessionList/SessionList";
-import { featuredRaces } from "@/data/mock-races";
-
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return featuredRaces.map((race) => ({ slug: race.id }));
-}
+import { getPublishedRaceBySlug } from "@/lib/public-data";
 
 export async function generateMetadata({
   params,
@@ -17,7 +11,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const race = featuredRaces.find((item) => item.id === slug);
+  const race = await getPublishedRaceBySlug(slug);
   return race ? { title: race.title, description: race.summary } : {};
 }
 
@@ -27,7 +21,7 @@ export default async function RaceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const race = featuredRaces.find((item) => item.id === slug);
+  const race = await getPublishedRaceBySlug(slug);
 
   if (!race) notFound();
 

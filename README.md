@@ -46,12 +46,15 @@ npm run db:migrate:remote
 ```bash
 npm run db:migrate:local
 npm run db:seed:local
+npm run db:migrate:remote
+npm run db:seed:remote
 ```
 
 seed는 반복 실행 가능하며 공개 화면 확인용 F1, WEC, WRC 레이스 데이터를
-추가합니다. 현재 Windows 환경에서는 `workerd` 실행 문제로 로컬 D1 명령이
-`write EOF`로 실패하므로, 공개 화면은 원격 D1 연결 전까지 목업 데이터를
-사용합니다.
+추가합니다. 원격 `racenote-db`에는 초기 마이그레이션과 seed를 적용했으며 공개
+화면은 Cloudflare 요청 시 원격 D1을 조회합니다. 현재 Windows 환경에서는
+`workerd` 실행 문제로 로컬 D1 명령과 D1 기반 공개 화면의 로컬 실행이 `write
+EOF`로 실패하므로, `next dev`에서는 공개 화면 목 데이터 fallback을 사용합니다.
 
 ## Cloudflare Builds
 

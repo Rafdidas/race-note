@@ -2,8 +2,11 @@ import Link from "next/link";
 import { HomeRaceGrid } from "@/components/HomeRaceGrid/HomeRaceGrid";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
+import { getPublishedRaces } from "@/lib/public-data";
 
-export default function Home() {
+export default async function Home() {
+  const races = await getPublishedRaces();
+
   return (
     <div className="home">
       <section className="home__hero">
@@ -60,7 +63,7 @@ export default function Home() {
           </div>
           <p>Curated briefings · KST</p>
         </div>
-        <HomeRaceGrid />
+        <HomeRaceGrid races={races} />
       </section>
     </div>
   );

@@ -1,6 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { D1Database } from "@cloudflare/workers-types";
 import { drizzle } from "drizzle-orm/d1";
+import { connection } from "next/server";
 import * as schema from "@/db/schema";
 
 declare global {
@@ -10,6 +11,7 @@ declare global {
 }
 
 export async function getDb() {
+  await connection();
   const { env } = await getCloudflareContext({ async: true });
 
   if (!env.DB) {

@@ -3,18 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
-import { allSessions, type SeriesCode } from "@/data/mock-races";
+import type { CalendarSession, SeriesCode } from "@/types/public-data";
 
 type Filter = "ALL" | SeriesCode;
 
 const filters: Filter[] = ["ALL", "F1", "WEC", "WRC"];
 
-export function CalendarSchedule() {
+export function CalendarSchedule({ sessions }: { sessions: CalendarSession[] }) {
   const [activeFilter, setActiveFilter] = useState<Filter>("ALL");
-  const sessions =
+  const filteredSessions =
     activeFilter === "ALL"
-      ? allSessions
-      : allSessions.filter(({ race }) => race.series === activeFilter);
+      ? sessions
+      : sessions.filter(({ race }) => race.series === activeFilter);
 
   return (
     <div className="calendar-schedule">
@@ -41,7 +41,7 @@ export function CalendarSchedule() {
       </div>
 
       <div className="calendar-schedule__list" aria-live="polite">
-        {sessions.map(({ race, ...session }) => (
+        {filteredSessions.map(({ race, ...session }) => (
           <Link
             className="calendar-schedule__row"
             href={`/races/${race.id}`}

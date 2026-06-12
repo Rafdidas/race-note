@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
-import { seriesGuides } from "@/data/mock-races";
+import { getSeriesGuides } from "@/lib/public-data";
 
 export const metadata: Metadata = {
   title: "Series Guide",
   description: "F1, WEC, WRC 입문 가이드",
 };
 
-export default function SeriesPage() {
+export default async function SeriesPage() {
+  const seriesGuides = await getSeriesGuides();
+
   return (
     <div className="public-page series-page">
       <PageHeader

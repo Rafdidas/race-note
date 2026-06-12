@@ -1,5 +1,10 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { raceContents, races, series, sessions } from "@/db/schema";
+import {
+  allSessions as mockSessions,
+  featuredRaces as mockRaces,
+  seriesGuides as mockSeriesGuides,
+} from "@/data/mock-races";
 import { getDb } from "@/lib/db";
 import { mapPublicRace } from "@/lib/public-data-format";
 import type {
@@ -91,6 +96,10 @@ async function getPublicRaceRows(slug?: string) {
 }
 
 export async function getPublishedRaces(): Promise<RacePreview[]> {
+  if (process.env.NODE_ENV === "development") {
+    return mockRaces;
+  }
+
   const rows = await getPublicRaceRows();
   return rows.races.map((race) => mapPublicRace(race, rows.sessions));
 }
@@ -98,12 +107,20 @@ export async function getPublishedRaces(): Promise<RacePreview[]> {
 export async function getPublishedRaceBySlug(
   slug: string,
 ): Promise<RacePreview | null> {
+  if (process.env.NODE_ENV === "development") {
+    return mockRaces.find((race) => race.id === slug) ?? null;
+  }
+
   const rows = await getPublicRaceRows(slug);
   const race = rows.races[0];
   return race ? mapPublicRace(race, rows.sessions) : null;
 }
 
 export async function getPublishedSessions(): Promise<CalendarSession[]> {
+  if (process.env.NODE_ENV === "development") {
+    return mockSessions;
+  }
+
   const publishedRaces = await getPublishedRaces();
 
   return publishedRaces
@@ -117,6 +134,10 @@ export async function getPublishedSessions(): Promise<CalendarSession[]> {
 }
 
 export async function getSeriesGuides(): Promise<SeriesGuide[]> {
+  if (process.env.NODE_ENV === "development") {
+    return mockSeriesGuides;
+  }
+
   const db = await getDb();
   const rows = await db.select().from(series).orderBy(asc(series.code));
 

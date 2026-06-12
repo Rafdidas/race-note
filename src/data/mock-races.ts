@@ -1,4 +1,4 @@
-import type { RacePreview } from "@/types/public-data";
+import type { RacePreview, SeriesGuide } from "@/types/public-data";
 
 export type { RacePreview, RaceSession, SeriesCode } from "@/types/public-data";
 
@@ -78,12 +78,13 @@ export const allSessions = featuredRaces.flatMap((race) =>
   race.sessions.map((session) => ({ ...session, race })),
 ).sort((a, b) => `${a.date}-${a.time}`.localeCompare(`${b.date}-${b.time}`));
 
-export const seriesGuides = [
+export const seriesGuides: SeriesGuide[] = [
   {
     code: "F1" as const,
     name: "Formula 1",
     format: "Circuit racing",
     description: "같은 서킷에서 모든 차량이 동시에 경쟁하는 최고 등급 싱글시터 레이스.",
+    beginnerGuide: "Qualifying과 Race부터 보면 팀과 드라이버, 전략의 차이를 이해하기 쉽습니다.",
     keywords: ["Drivers", "Teams", "Qualifying", "Strategy"],
     firstWatch: "Qualifying + Race",
   },
@@ -92,6 +93,7 @@ export const seriesGuides = [
     name: "World Endurance Championship",
     format: "Endurance racing",
     description: "여러 클래스와 드라이버가 긴 시간을 함께 달리며 속도와 내구성을 겨루는 레이스.",
+    beginnerGuide: "Start와 Final Hour부터 보면 클래스, 교대, 피트 전략의 흐름을 이해하기 쉽습니다.",
     keywords: ["Classes", "Traffic", "Driver change", "Pit cycle"],
     firstWatch: "Start + Final Hour",
   },
@@ -100,6 +102,7 @@ export const seriesGuides = [
     name: "World Rally Championship",
     format: "Stage rally",
     description: "도로와 비포장 스테이지를 한 대씩 달린 기록을 합산하는 랠리 챔피언십.",
+    beginnerGuide: "Power Stage부터 보면 기록 경쟁과 보너스 포인트의 긴장감을 느끼기 쉽습니다.",
     keywords: ["Stages", "Co-driver", "Surface", "Pace notes"],
     firstWatch: "Power Stage",
   },
