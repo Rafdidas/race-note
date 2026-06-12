@@ -1,4 +1,4 @@
-import type { SeriesCode } from "@/data/mock-races";
+import type { SeriesCode } from "@/types/public-data";
 
 type SeriesBadgeProps = {
   series: SeriesCode;

@@ -1,27 +1,6 @@
-export type SeriesCode = "F1" | "WEC" | "WRC";
+import type { RacePreview } from "@/types/public-data";
 
-export type RacePreview = {
-  id: string;
-  series: SeriesCode;
-  title: string;
-  location: string;
-  period: string;
-  mustWatch: string[];
-  summary: string;
-  status: string;
-  sessions: RaceSession[];
-  brief: string[];
-  beginnerNote: string;
-  variables: string[];
-};
-
-export type RaceSession = {
-  date: string;
-  day: string;
-  name: string;
-  time: string;
-  mustWatch?: boolean;
-};
+export type { RacePreview, RaceSession, SeriesCode } from "@/types/public-data";
 
 export const featuredRaces: RacePreview[] = [
   {
@@ -35,9 +14,9 @@ export const featuredRaces: RacePreview[] = [
       "낮은 다운포스와 강한 제동이 승부를 가릅니다. 세이프티카가 흐름을 바꿀 가능성도 큽니다.",
     status: "Upcoming",
     sessions: [
-      { date: "06.13", day: "SAT", name: "Practice 3", time: "01:30" },
-      { date: "06.14", day: "SUN", name: "Qualifying", time: "05:00", mustWatch: true },
-      { date: "06.15", day: "MON", name: "Race", time: "03:00", mustWatch: true },
+      { id: "mock-canada-p3", date: "06.13", day: "SAT", name: "Practice 3", time: "01:30" },
+      { id: "mock-canada-quali", date: "06.14", day: "SUN", name: "Qualifying", time: "05:00", mustWatch: true },
+      { id: "mock-canada-race", date: "06.15", day: "MON", name: "Race", time: "03:00", mustWatch: true },
     ],
     brief: [
       "긴 직선과 강한 제동 구간이 이어져 브레이크 관리가 중요합니다.",
@@ -58,9 +37,9 @@ export const featuredRaces: RacePreview[] = [
       "여러 클래스가 동시에 달리는 24시간 레이스입니다. 야간 주행과 피트 전략을 함께 보세요.",
     status: "Next",
     sessions: [
-      { date: "06.13", day: "SAT", name: "Race Start", time: "23:00", mustWatch: true },
-      { date: "06.14", day: "SUN", name: "Night Stint", time: "04:00", mustWatch: true },
-      { date: "06.14", day: "SUN", name: "Final Hour", time: "22:00", mustWatch: true },
+      { id: "mock-le-mans-start", date: "06.13", day: "SAT", name: "Race Start", time: "23:00", mustWatch: true },
+      { id: "mock-le-mans-night", date: "06.14", day: "SUN", name: "Night Stint", time: "04:00", mustWatch: true },
+      { id: "mock-le-mans-final", date: "06.14", day: "SUN", name: "Final Hour", time: "22:00", mustWatch: true },
     ],
     brief: [
       "24시간 동안 속도와 내구성, 교대 운영을 동시에 겨루는 레이스입니다.",
@@ -81,9 +60,9 @@ export const featuredRaces: RacePreview[] = [
       "거친 자갈길과 높은 기온이 차를 시험합니다. 빠른 기록만큼 완주 관리가 중요합니다.",
     status: "Soon",
     sessions: [
-      { date: "06.25", day: "THU", name: "Opening Stage", time: "01:05", mustWatch: true },
-      { date: "06.27", day: "SAT", name: "Long Stage", time: "18:40" },
-      { date: "06.28", day: "SUN", name: "Power Stage", time: "19:15", mustWatch: true },
+      { id: "mock-acropolis-opening", date: "06.25", day: "THU", name: "Opening Stage", time: "01:05", mustWatch: true },
+      { id: "mock-acropolis-long", date: "06.27", day: "SAT", name: "Long Stage", time: "18:40" },
+      { id: "mock-acropolis-power", date: "06.28", day: "SUN", name: "Power Stage", time: "19:15", mustWatch: true },
     ],
     brief: [
       "거친 자갈길과 높은 기온이 차량 내구성을 강하게 시험합니다.",

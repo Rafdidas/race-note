@@ -45,7 +45,7 @@ export function CalendarSchedule() {
           <Link
             className="calendar-schedule__row"
             href={`/races/${race.id}`}
-            key={`${race.id}-${session.name}`}
+            key={session.id}
           >
             <div className="calendar-schedule__date">
               <strong>{session.date}</strong>

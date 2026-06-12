@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "test": "tsx --test src/lib/*.test.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -12,7 +13,8 @@
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:types": "wrangler types --include-runtime false",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local --config wrangler.local.jsonc",
+    "db:seed:local": "wrangler d1 execute DB --local --config wrangler.local.jsonc --file drizzle/seed.sql",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote"
   },
   "dependencies": {
@@ -24,6 +26,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260612.1",
     "@emnapi/core": "^1.11.0",
     "@emnapi/runtime": "^1.11.0",
     "@opennextjs/cloudflare": "^1.19.11",
@@ -34,7 +37,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "sass": "^1.100.0",
+    "tsx": "^4.22.4",
     "typescript": "^5",
-    "wrangler": "^4.99.0"
+    "wrangler": "^4.100.0"
   }
 }

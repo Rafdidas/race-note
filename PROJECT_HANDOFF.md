@@ -13,7 +13,7 @@
 ## Current Status
 
 - 프로젝트 생성과 초기 설정을 완료했습니다.
-- 뉴트럴 그레이/코랄 라이트 테마와 웜 블랙/코랄 다크 테마를 구현했습니다.
+- 뉴트럴 그레이/코랄 라이트 테마와 웜 블랙/라임 다크 테마를 구현했습니다.
 - 첫 방문에는 시스템 테마를 따르고, 사용자 선택은 브라우저에 저장하는 공개 헤더
   테마 토글을 구현했습니다.
 - `/` 홈 화면의 Hero, Live Briefing, 이번 주 레이스, 시리즈 필터를 목업 데이터로
@@ -23,6 +23,8 @@
   `RaceCard`, `SessionList`, `EmptyState` 공통 컴포넌트를 구현했습니다.
 - 설계서의 8개 MVP 테이블을 Drizzle 스키마로 구현하고 초기 D1 SQL 마이그레이션을
   추가했습니다.
+- 로컬 D1 설정과 반복 실행 가능한 공개 화면 seed SQL을 추가했습니다.
+- 공개 화면용 Drizzle D1 조회 계층과 화면 모델 변환 테스트를 준비했습니다.
 - `/admin/login`, `/admin`, `/admin/sync`, `/admin/races`,
   `/admin/races/[id]` 관리자 운영 UI를 목업 데이터로 구현했습니다.
 - 관리자 인증, 동기화, 저장, AI 생성, 공개 액션은 실제 D1 연결 전까지
@@ -85,7 +87,7 @@ MVP 핵심:
 - 크림 또는 웜 그레이 계열 주요 텍스트
 - 낮은 대비의 중간 회색 보조 텍스트
 - 얇고 절제된 회색 테두리
-- 과도하게 선명하지 않은 코랄 포인트
+- 레이스 타이밍 보드 분위기의 라임 포인트
 
 테마는 `<html data-theme="light|dark">`와 전역 CSS 토큰으로 적용합니다. 첫
 방문에는 `prefers-color-scheme`을 따르고, 공개 헤더의 `LIGHT / DARK` 토글을
@@ -163,8 +165,16 @@ drizzle/
 ```
 
 Drizzle 스키마와 `drizzle/0000_initial.sql` 초기 마이그레이션을 구현했습니다.
-홈 화면 데이터는 아직 `src/data/mock-races.ts`의 정적 목업이며, 실제 D1 생성 및
-바인딩 후 동일한 `RacePreview` 형태로 교체할 예정입니다.
+공개 화면과 관리자 화면은 아직 정적 목업을 사용합니다. 실제 원격 D1 생성과
+바인딩 후 공개 화면부터 `src/lib/public-data.ts`의 D1 조회로 교체할 예정입니다.
+
+로컬 개발 설정:
+
+```txt
+Wrangler config: wrangler.local.jsonc
+D1 binding: DB
+Seed SQL: drizzle/seed.sql
+```
 
 ## Cloudflare Deployment Notes
 
@@ -238,6 +248,15 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
 - 모바일 공개 헤더의 토글 노출
 - 브라우저 콘솔 오류 없음
 
+공개 D1 데이터 계층 준비 후 다음을 검증했습니다.
+
+- `npm test`: UTC → KST 포맷과 공개 레이스 화면 모델 변환
+- 초기 마이그레이션 + seed SQL 2회 실행: SQLite에서 반복 실행 가능
+- seed 결과: series 3, races 3, sessions 9, race_contents 3
+- SQLite `PRAGMA foreign_key_check`: 오류 없음
+- D1 조회 계층과 공개 화면 모델의 TypeScript 빌드
+- `npm run cf:build` 통과
+
 ## Known Notes
 
 - npm 선택적 peer dependency 문제를 방지하기 위해 `@emnapi/core`와
@@ -252,19 +271,26 @@ Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 
   db:generate`를 실행하면 오류 없이 무응답 상태로 멈춥니다. 스키마는 Next 빌드와
   Node 직접 import로 검증했고, 초기 SQL은 수동으로 추가해 SQLite 적용 검증했습니다.
   실제 D1 연결 전에 drizzle-kit/Node 버전 조합을 재확인해야 합니다.
+- 현재 Windows 환경에서 `workerd.exe`가 직접 실행되지 않으며 Wrangler 로컬 D1
+  명령과 `next dev`의 D1 바인딩 초기화가 `write EOF`로 실패합니다. Wrangler
+  4.99.0/4.100.0과 Node 22/24에서 동일하게 재현했습니다. SQL과 OpenNext 빌드는
+  검증됐으며, 로컬 런타임 확인은 WSL 또는 workerd가 실행 가능한 환경에서
+  재개해야 합니다.
 
 ## Next Work Boundary
 
-공개 화면, 관리자 운영 UI, MVP Drizzle 스키마와 초기 SQL 마이그레이션 구현을
-완료했습니다. 관리자 화면은 현재 목업 데이터 기반이며 모든 변경 액션은
-비활성화되어 있습니다.
+공개 화면용 D1 조회 계층 준비, 관리자 운영 UI, MVP Drizzle 스키마와 초기 SQL
+마이그레이션 구현을 완료했습니다. 공개/관리자 화면은 현재 목업 데이터 기반이며
+모든 변경 액션은 비활성화되어 있습니다.
 
 권장 다음 순서:
 
-1. 실제 D1 생성 및 바인딩 후 공개/관리자 목업 데이터 교체
-2. 관리자 비밀번호 인증과 httpOnly 세션 구현
-3. 관리자 저장·검수·공개 액션 구현
-4. 일정 수집·AI 생성 작업 구현
+1. Cloudflare API 토큰 준비 후 실제 D1 생성, 바인딩, 마이그레이션, seed 적용
+2. 공개 화면을 준비된 D1 조회 계층으로 교체하고 원격 D1 검증
+3. 관리자 화면 목업 데이터를 D1 조회로 교체
+4. 관리자 비밀번호 인증과 httpOnly 세션 구현
+5. 관리자 저장·검수·공개 액션 구현
+6. 일정 수집·AI 생성 작업 구현
 
 ## New Session Starter Prompt
 

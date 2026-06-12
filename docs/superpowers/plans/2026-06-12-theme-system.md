@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a persisted light/dark theme toggle with neutral-gray/coral light colors and warm-black/coral dark colors.
+**Goal:** Add a persisted light/dark theme toggle with neutral-gray/coral light colors and warm-black/lime dark colors.
 
 **Architecture:** Keep the root layout as a Server Component and apply the initial theme with a synchronous inline script before first paint. Add a small `ThemeToggle` Client Component that updates `<html data-theme>` and persists the explicit user choice in `localStorage`.
 
@@ -160,4 +160,3 @@ git diff --check
 ```
 
 Expected: all commands exit with code 0.
-

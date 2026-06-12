@@ -39,6 +39,20 @@ npm run db:migrate:remote
 생성한 뒤 `wrangler.d1.example.jsonc`의 `d1_databases` 블록을 `wrangler.jsonc`에
 복사하고 실제 `database_id`로 변경합니다.
 
+## Local D1 Preparation
+
+`wrangler.local.jsonc`, 초기 마이그레이션, seed SQL을 준비했습니다.
+
+```bash
+npm run db:migrate:local
+npm run db:seed:local
+```
+
+seed는 반복 실행 가능하며 공개 화면 확인용 F1, WEC, WRC 레이스 데이터를
+추가합니다. 현재 Windows 환경에서는 `workerd` 실행 문제로 로컬 D1 명령이
+`write EOF`로 실패하므로, 공개 화면은 원격 D1 연결 전까지 목업 데이터를
+사용합니다.
+
 ## Cloudflare Builds
 
 Cloudflare Workers Builds에서는 다음 명령을 사용합니다.

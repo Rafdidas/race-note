@@ -1,4 +1,4 @@
-import type { RaceSession } from "@/data/mock-races";
+import type { RaceSession } from "@/types/public-data";
 
 type SessionListProps = {
   sessions: RaceSession[];
@@ -9,7 +9,7 @@ export function SessionList({ sessions, showDate = true }: SessionListProps) {
   return (
     <div className="session-list">
       {sessions.map((session) => (
-        <div className="session-list__row" key={`${session.date}-${session.name}`}>
+        <div className="session-list__row" key={session.id}>
           {showDate && (
             <div className="session-list__date">
               <strong>{session.date}</strong>

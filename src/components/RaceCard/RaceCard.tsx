@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { RacePreview } from "@/data/mock-races";
+import type { RacePreview } from "@/types/public-data";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
 
 type RaceCardProps = {
