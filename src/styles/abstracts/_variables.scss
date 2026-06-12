@@ -1,18 +1,20 @@
 :root {
+  color-scheme: light;
+
   --font-body: "IBM Plex Mono", "Pretendard Variable", Pretendard, sans-serif;
   --font-korean: "Pretendard Variable", Pretendard, sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
 
-  --color-canvas: #e9ebe4;
-  --color-surface: #f2f3ed;
-  --color-surface-raised: #fafbf6;
-  --color-text: #171914;
-  --color-text-muted: #676c62;
-  --color-text-faint: #8d9288;
-  --color-line: #c9cdc2;
-  --color-line-strong: #959b8e;
-  --color-accent: #b9ed3b;
-  --color-accent-ink: #171914;
+  --color-canvas: #e7e7e4;
+  --color-surface: #f1f1ee;
+  --color-surface-raised: #fafaf7;
+  --color-text: #1b1a19;
+  --color-text-muted: #686460;
+  --color-text-faint: #918b86;
+  --color-line: #cbc7c2;
+  --color-line-strong: #99928b;
+  --color-accent: #e46f61;
+  --color-accent-ink: #1b1a19;
   --color-f1: #d84d3f;
   --color-wec: #3674b8;
   --color-wrc: #608313;
@@ -21,4 +23,22 @@
   --page-gutter: clamp(18px, 3vw, 48px);
   --section-space: clamp(72px, 10vw, 148px);
   --transition-fast: 180ms ease;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-canvas: #171615;
+  --color-surface: #201f1d;
+  --color-surface-raised: #292725;
+  --color-text: #eeeae5;
+  --color-text-muted: #aaa39c;
+  --color-text-faint: #7e7771;
+  --color-line: #3d3936;
+  --color-line-strong: #635c57;
+  --color-accent: #e58276;
+  --color-accent-ink: #171615;
+  --color-f1: #e36a5f;
+  --color-wec: #6f9bc9;
+  --color-wrc: #91a85e;
 }

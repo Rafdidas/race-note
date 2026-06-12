@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
 
 const links = [
   { href: "/#this-week", label: "This Week" },
@@ -24,8 +25,8 @@ export function PublicHeader() {
         </nav>
 
         <div className="public-header__meta">
-          <span className="public-header__signal" aria-hidden="true" />
-          KST · SEOUL
+          <ThemeToggle />
+          <span className="public-header__location">KST · SEOUL</span>
         </div>
       </div>
     </header>

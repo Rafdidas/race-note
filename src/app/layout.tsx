@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PublicFooter } from "@/components/PublicFooter/PublicFooter";
 import { PublicHeader } from "@/components/PublicHeader/PublicHeader";
+import { ThemeScript } from "@/components/ThemeScript/ThemeScript";
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
@@ -22,7 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html data-theme="light" lang="ko" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body>
         <div className="public-layout">
           <PublicHeader />

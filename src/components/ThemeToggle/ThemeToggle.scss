@@ -1,0 +1,33 @@
+@use "../../styles/abstracts/mixins" as *;
+
+.theme-toggle {
+  @include overline;
+
+  align-items: center;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.55rem;
+  padding: 0;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &__marker {
+    background: var(--color-accent);
+    height: 6px;
+    transition: transform var(--transition-fast);
+    width: 6px;
+  }
+
+  &:hover &__marker {
+    transform: rotate(45deg);
+  }
+}

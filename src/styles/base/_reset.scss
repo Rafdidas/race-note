@@ -17,6 +17,9 @@ html {
 body {
   background: var(--color-canvas);
   color: var(--color-text);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 a {
@@ -37,4 +40,13 @@ ul,
 ol {
   margin: 0;
   padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -51,27 +51,22 @@
   }
 
   &__meta {
-    @include overline;
-
     align-items: center;
     display: flex;
-    gap: 0.6rem;
+    gap: 1rem;
     justify-self: end;
   }
 
-  &__signal {
-    background: var(--color-accent);
-    border-radius: 50%;
-    height: 5px;
-    box-shadow: 0 0 10px var(--color-accent);
-    width: 5px;
+  &__location {
+    @include overline;
   }
 }
 
 @media (max-width: 700px) {
   .public-header {
     &__inner {
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr auto auto;
+      gap: 14px;
       min-height: 60px;
     }
 
@@ -84,6 +79,10 @@
     }
 
     &__meta {
+      gap: 0;
+    }
+
+    &__location {
       display: none;
     }
   }
