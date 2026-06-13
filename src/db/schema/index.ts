@@ -20,6 +20,7 @@ const aiStatuses = ["empty", "generated", "needs_review", "reviewed", "published
 const sourceTypes = ["ics", "api", "html", "manual"] as const;
 const syncStatuses = ["success", "failed", "partial"] as const;
 const entityTypes = ["race", "session", "content"] as const;
+const overrideEntityTypes = ["race", "session"] as const;
 const changeStatuses = ["auto_applied", "needs_review", "ignored"] as const;
 
 export const series = sqliteTable("series", {
@@ -175,6 +176,26 @@ export const changeLogs = sqliteTable(
   ],
 );
 
+export const manualOverrides = sqliteTable(
+  "manual_overrides",
+  {
+    id: text("id").primaryKey(),
+    entityType: text("entity_type", { enum: overrideEntityTypes }).notNull(),
+    entityId: text("entity_id").notNull(),
+    fieldName: text("field_name").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("manual_overrides_entity_field_idx").on(
+      table.entityType,
+      table.entityId,
+      table.fieldName,
+    ),
+    index("manual_overrides_entity_idx").on(table.entityType, table.entityId),
+  ],
+);
+
 export const adminSessions = sqliteTable(
   "admin_sessions",
   {
@@ -194,3 +215,5 @@ export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
 export type RaceContent = typeof raceContents.$inferSelect;
 export type NewRaceContent = typeof raceContents.$inferInsert;
+export type ManualOverride = typeof manualOverrides.$inferSelect;
+export type NewManualOverride = typeof manualOverrides.$inferInsert;

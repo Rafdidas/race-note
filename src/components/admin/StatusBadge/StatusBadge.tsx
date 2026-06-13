@@ -1,4 +1,4 @@
-import type { AdminStatus } from "@/data/mock-admin";
+import type { AdminStatus } from "@/types/admin-data";
 
 type StatusBadgeProps = {
   status: AdminStatus;

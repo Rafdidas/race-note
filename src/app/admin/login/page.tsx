@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { AdminLoginForm } from "@/components/admin/AdminLoginForm/AdminLoginForm";
+import { hasAdminSession } from "@/lib/admin-auth";
 
 export const metadata: Metadata = { title: "Login" };
 
-export default function AdminLoginPage() {
+export default async function AdminLoginPage() {
+  if (await hasAdminSession()) {
+    redirect("/admin");
+  }
+
   return (
     <main className="admin-login">
       <div className="admin-login__panel">
@@ -13,13 +20,9 @@ export default function AdminLoginPage() {
         <div>
           <span className="admin-login__index">A/00 · Admin login</span>
           <h1>RaceNote<br />Admin</h1>
-          <p className="type-korean">운영 화면은 관리자 세션 연결 전까지 목업 모드로 제공됩니다.</p>
+          <p className="type-korean">관리자 비밀번호로 운영 화면에 접근합니다.</p>
         </div>
-        <form className="admin-login__form">
-          <label htmlFor="admin-password">Password</label>
-          <input disabled id="admin-password" name="password" placeholder="Authentication pending" type="password" />
-          <button className="admin-button admin-button--primary" disabled type="submit">Login</button>
-        </form>
+        <AdminLoginForm />
       </div>
     </main>
   );

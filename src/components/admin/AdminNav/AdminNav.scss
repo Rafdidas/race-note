@@ -58,17 +58,24 @@
   &__footer {
     @include overline;
 
-    align-items: center;
     color: var(--color-canvas);
-    display: flex;
-    gap: 8px;
     margin-top: auto;
-  }
 
-  &__signal {
-    background: var(--color-accent);
-    height: 6px;
-    width: 6px;
+    button {
+      background: transparent;
+      border: 1px solid color-mix(in srgb, var(--color-canvas) 30%, transparent);
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      letter-spacing: inherit;
+      padding: 9px 12px;
+      text-transform: uppercase;
+
+      &:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
+    }
   }
 }
 

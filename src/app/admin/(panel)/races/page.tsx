@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge/StatusBadge";
-import { adminRaces } from "@/data/mock-admin";
+import { getAdminRaces } from "@/lib/admin-data";
 
 export const metadata: Metadata = { title: "Races" };
 
-export default function AdminRacesPage() {
+export default async function AdminRacesPage() {
+  const adminRaces = await getAdminRaces();
+
   return (
     <div className="admin-races">
       <AdminPageHeader

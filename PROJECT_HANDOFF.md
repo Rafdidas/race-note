@@ -29,10 +29,26 @@
 - Cloudflare Worker에 배포하고 공개 화면의 원격 D1 런타임 조회를 검증했습니다.
 - `/admin/login`, `/admin`, `/admin/sync`, `/admin/races`,
   `/admin/races/[id]` 관리자 운영 UI를 목업 데이터로 구현했습니다.
-- 관리자 인증, 동기화, 저장, AI 생성, 공개 액션은 실제 D1 연결 전까지
-  비활성화된 상태입니다.
+- 관리자 대시보드, 동기화 로그, 레이스 목록, 레이스 상세 화면을 원격 D1 조회
+  계층으로 교체했습니다.
+- 환경변수 비밀번호와 D1 `admin_sessions`, httpOnly 쿠키를 사용하는 관리자 인증과
+  로그아웃을 구현했습니다.
+- 기존 레이스의 기본 정보, 세션, 콘텐츠 정정 저장과 검수 완료, 공개/비공개 액션을
+  구현했습니다.
+- F1 Jolpica 일정 수집, 수동 실행, 하루 2회 Cloudflare Cron, 동기화 로그 저장을
+  구현했습니다.
+- 관리자 정정 필드를 `manual_overrides`에 기록하고 이후 자동 수집에서 보호하는
+  병합 정책을 구현했습니다.
+- WEC/WRC 공식 캘린더의 레이스 단위 수집, 전체 시리즈 수동 실행 및 Cron 연결,
+  관리자 수동 세션 추가·삭제를 구현했습니다.
+- 원격 D1에 `0001_manual_overrides.sql`, `0002_wec_wrc_sources.sql`을 적용하고
+  전체 일정 수집 Worker와 Cron을 배포했습니다.
+- AI 생성 액션은 아직 구현되지 않았습니다.
 - Git 저장소와 Cloudflare Workers 배포 연결이 완료되어 있습니다.
-- D1은 아직 실제 데이터베이스 ID와 연결하지 않았습니다.
+- D1은 원격 `racenote-db`의 실제 데이터베이스 ID와 연결되어 있습니다.
+- 프로젝트 로컬 `semble_rs v0.9.1` 코드 탐색 환경을 추가했습니다.
+- `AGENTS.md`를 RaceNote 기술 스택, UI, D1, Cloudflare, 보안, 검증 절차를
+  포함한 상세 프로젝트 작업 지침으로 정비했습니다.
 
 ## Product Summary
 
@@ -167,9 +183,13 @@ drizzle/
 ```
 
 Drizzle 스키마와 `drizzle/0000_initial.sql` 초기 마이그레이션을 구현했습니다.
-공개 화면은 배포 환경에서 `src/lib/public-data.ts`의 원격 D1 조회를 사용합니다.
+공개 화면은 배포 환경에서 `src/lib/public-data.ts`의 원격 D1 조회를 사용하고,
+관리자 운영 화면은 `src/lib/admin-data.ts`의 원격 D1 조회를 사용하며,
+`src/lib/admin-auth.ts`가 모든 관리자 조회 경계와 관리자 레이아웃의 D1 세션을
+검증합니다.
 현재 Windows의 `workerd` 문제를 피하기 위해 `next dev`에서만 기존 목 데이터를
-fallback으로 사용합니다. 관리자 화면은 아직 정적 목업을 사용합니다.
+fallback으로 사용합니다. 로컬 관리자 인증 런타임 확인은 workerd가 실행 가능한
+환경이 필요합니다.
 
 로컬 개발 설정:
 
@@ -236,6 +256,21 @@ npx wrangler deploy --dry-run
 sqlite3 :memory: ".read drizzle/0000_initial.sql" "PRAGMA foreign_key_check;"
 ```
 
+프로젝트 로컬 코드 탐색 도구:
+
+```bash
+npm run semble:setup
+npm run semble:tree
+npm run semble:search -- "public D1 data loading" --outline
+npm run semble:deps -- src/lib/public-data.ts
+npm run semble:impact -- src/lib/public-data.ts
+```
+
+Rust 툴체인과 `semble_rs` 바이너리는 Git에서 제외된 `.tools/` 아래에 설치됩니다.
+첫 검색에서는 기본 임베딩 모델 약 60MB를 사용자 Hugging Face 기본 캐시에 추가로
+다운로드합니다. 현재 업스트림 `model2vec-rs 0.2.0` 모델 로더는 `HF_HOME`을
+사용하지 않습니다.
+
 Windows에서 OpenNext는 WSL 사용 권장 경고를 표시하지만 빌드는 통과합니다.
 `npm run db:generate`는 아래 Known Notes의 현재 이슈로 인해 검증 목록에서
 제외했습니다.
@@ -281,6 +316,98 @@ npx wrangler deploy
 - 배포된 공개 화면에서 원격 D1 seed 콘텐츠 확인
 - 존재하지 않는 공개 레이스 slug: HTTP 404
 
+관리자 D1 읽기 계층 준비 후 다음을 검증했습니다.
+
+- 관리자 레이스·세션·동기화 로그 화면 모델 변환 테스트
+- 관리자 대시보드, 동기화 로그, 레이스 목록, 레이스 상세의 D1 조회 연결
+- 관리자 상세 경로가 D1 `races.id`를 요청 시 조회하는 동적 경로로 빌드
+- `npm run build` 및 `npm run cf:build` 통과
+
+관리자 인증 준비 후 다음을 검증했습니다.
+
+- Web Crypto 기반 비밀번호 검증, 세션 토큰 HMAC, 만료 판정 테스트
+- 원문 세션 토큰은 httpOnly 쿠키에만 저장하고 D1에는 HMAC digest 저장
+- 관리자 레이아웃과 관리자 데이터 조회 경계의 세션 검증
+- 로그인 실패 메시지, 로그인 성공 리디렉션, 로그아웃 세션 삭제 흐름
+
+배포 전에 Cloudflare Workers의 암호화된 비밀로 다음 값을 등록해야 합니다.
+
+```txt
+ADMIN_PASSWORD
+ADMIN_SESSION_SECRET
+```
+
+관리자 편집 액션 준비 후 다음을 검증했습니다.
+
+- 레이스 기본 정보, 세션 UTC 시간, Must Watch, 콘텐츠 입력 검증 테스트
+- 저장 시 콘텐츠를 `needs_review`로 전환하고 기존 공개 상태 유지
+- 검수 완료 시 레이스·세션 review flag와 관련 change log 처리
+- 검수 완료 상태에서만 공개 허용, 공개 레이스의 비공개 초안 전환
+- 모든 mutation Server Action과 D1 mutation 경계에서 관리자 세션 재검증
+
+관리자 편집은 자동 수집 데이터를 정정하기 위한 기능이며 신규 일정을 모두 수동
+등록하는 흐름이 아닙니다. 관리자 저장 시 실제로 변경한 레이스·세션 필드를
+`manual_overrides`에 기록하며, 이후 자동 수집은 해당 필드를 유지하고 소스와의
+충돌을 `ignored` 변경 로그로 남깁니다. WEC/WRC 공식 캘린더가 정확한 세션 시각을
+제공하지 않는 경우에만 관리자 상세에서 수동 세션을 추가하며, 자동 수집 세션은
+다음 실행에서 되살아나는 혼동을 막기 위해 삭제할 수 없습니다.
+
+F1 수집 구현 후 다음을 검증했습니다.
+
+- Jolpica 응답을 provider-neutral 레이스·세션 모델로 변환
+- 실제 Jolpica current 응답에서 2026 시즌 22개 레이스 파싱
+- `source_key` 기준 신규 추가와 기존 데이터 비교
+- 보호되지 않은 외부 변경은 적용 후 `needs_review` 처리
+- 신규·변경 일정은 draft/검수 상태로 유지하고 자동 공개하지 않음
+- `/admin/sync` 수동 F1 수집과 Cloudflare Cron 진입점 연결
+- 초기 SQL, `0001_manual_overrides.sql`, seed 2회 적용과 외래키 검사
+- `npm test`, `npm run lint`, `npm run build`, `npm run cf:build` 통과
+- `npm run cf:types`, `wrangler deploy --dry-run` 완료. 현재 sandbox에서는 Wrangler
+  로그 파일 경로 권한 경고가 표시되지만 타입 생성과 dry-run 번들은 정상 완료됨
+
+WEC/WRC 수집 구현 후 다음을 검증했습니다.
+
+- WEC 공식 캘린더 HTML에서 현재 시즌 레이스를 파싱하고 Prologue 제외
+- WRC 공식 캘린더의 내장 JSON에서 라운드와 월 경계 날짜 범위를 파싱
+- 2026-06-13 실제 공식 페이지에서 WEC 8개, WRC 14개 라운드 파싱
+- WEC/WRC는 정확한 세션 시각을 추측하지 않고 레이스 단위 데이터만 저장
+- F1/WEC/WRC 소스를 순차 실행하고 한 소스 실패가 나머지 실행을 막지 않도록 격리
+- `/admin/sync` 수동 전체 수집과 Cloudflare Cron 전체 수집 연결
+- 관리자 수동 세션 입력 검증, 추가 및 수동 세션 전용 삭제
+- 수동 세션 추가·삭제 시 공개 상태는 유지하고 레이스를 검수 필요 상태로 전환
+- 초기 SQL, `0001_manual_overrides.sql`, `0002_wec_wrc_sources.sql`, seed 2회 적용과
+  외래키 검사
+- `npm test`, `npm run lint`, `npm run build`, `npm run cf:build`,
+  `npm run cf:types`, `wrangler deploy --dry-run` 완료
+
+2026-06-13 운영 반영 후 다음을 검증했습니다.
+
+- 원격 D1에 `0001_manual_overrides.sql`, `0002_wec_wrc_sources.sql` 적용
+- 원격 마이그레이션 보류 항목 없음
+- 원격 `manual_overrides` 테이블과 F1/WEC/WRC 동기화 소스 3개 확인
+- 원격 D1 `PRAGMA foreign_key_check` 오류 없음
+- `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` Worker 비밀 유지
+- Worker 버전 `22ccb177-736a-4024-ac35-1c96a255a0bf` 배포
+- UTC `0 0 * * *`, `0 12 * * *` Cron 트리거 배포
+- 배포된 `/`, `/calendar`, `/series`, `/admin/login`, `/admin` HTTP 200 확인
+
+배포 환경 관리자 흐름 검증 중 Drizzle D1 `transaction()`이 원격 D1에 `BEGIN`을
+보내 실패하고, F1 세션 source key 110개를 한 `IN` 쿼리로 조회해 D1 바인딩 한도를
+넘는 문제를 발견했습니다. 모든 다중 쓰기를 D1 원자적 `batch()`로 교체하고, 대형
+`IN` 조회를 90개 단위로 분할했습니다.
+
+수정 후 Worker 버전 `8c708988-e357-4320-ab59-6149369d32d5`를 배포하고 다음을
+검증했습니다.
+
+- 배포 환경 관리자 로그인과 로그아웃
+- 전체 수동 동기화 성공: F1 22개 레이스와 세션 합계 132건, WEC 8개, WRC 14개 추가
+- 전체 수동 동기화 재실행 시 F1/WEC/WRC 추가·수정 모두 0
+- 자동 수집 WEC 레이스에 테스트 수동 세션 추가 후 삭제
+- 테스트 수동 세션이 원격 D1에 남지 않음
+- 수집 레이스 수: F1 22, WEC 8, WRC 14
+- 원격 D1 `PRAGMA foreign_key_check` 오류 없음
+- `npm test` 27개, `npm run lint`, `npm run build`, `npm run cf:build` 통과
+
 ## Known Notes
 
 - npm 선택적 peer dependency 문제를 방지하기 위해 `@emnapi/core`와
@@ -291,6 +418,12 @@ npx wrangler deploy
 - `.env`와 실제 Cloudflare/D1 비밀값은 Git에 커밋하지 않습니다.
 - Cloudflare API 토큰은 로컬 `.env.local`에만 저장하며 Git에 커밋하지 않습니다.
 - 현재 API 토큰에는 D1 편집과 Worker 배포 권한이 있습니다.
+- 원격 D1 쓰기에는 Drizzle `transaction()`을 사용하지 않습니다. D1의 원자적
+  `batch()`를 사용하고, 다수 값을 바인딩하는 조회는 `src/lib/d1-helpers.ts`의
+  안전 한도로 분할합니다.
+- 기존 공개 seed F1 레이스는 `seed-*` source key를 사용하므로 Jolpica 수집 레이스와
+  자동 병합되지 않습니다. 수집된 실제 F1 레이스를 공개하기 전에 기존 seed F1
+  레이스를 비공개 처리해야 합니다.
 - 현재 설치된 `drizzle-kit 0.31.10`에서 전체 스키마를 대상으로 `npm run
   db:generate`를 실행하면 오류 없이 무응답 상태로 멈춥니다. 스키마는 Next 빌드와
   Node 직접 import로 검증했고, 초기 SQL은 수동으로 추가해 SQLite 적용 검증했습니다.
@@ -303,16 +436,14 @@ npx wrangler deploy
 
 ## Next Work Boundary
 
-공개 화면의 원격 D1 조회 연결과 Cloudflare 배포 검증, 관리자 운영 UI, MVP
-Drizzle 스키마와 초기 SQL 마이그레이션 구현을 완료했습니다. 관리자 화면은 현재
-목업 데이터 기반이며 모든 변경 액션은 비활성화되어 있습니다.
+공개·관리자 화면의 원격 D1 조회 연결, 관리자 인증, 기존 레이스 정정·검수·공개
+액션, F1/WEC/WRC 일정 수집, 관리자 수동 세션 관리, Cloudflare 빌드 검증, MVP
+Drizzle 스키마와 SQL 마이그레이션 구현 및 운영 배포를 완료했습니다.
 
 권장 다음 순서:
 
-1. 관리자 화면 목업 데이터를 D1 조회로 교체
-2. 관리자 비밀번호 인증과 httpOnly 세션 구현
-3. 관리자 저장·검수·공개 액션 구현
-4. 일정 수집·AI 생성 작업 구현
+1. 관리자 로그인 후 배포 환경에서 전체 수동 수집과 관리자 수동 세션 흐름 확인
+2. AI 콘텐츠 생성과 검수 플로우 구현
 
 ## New Session Starter Prompt
 

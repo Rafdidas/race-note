@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge/StatusBadge";
-import { adminRaces, recentLogs, reviewQueue, syncSources } from "@/data/mock-admin";
+import { getAdminDashboardData } from "@/lib/admin-data";
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const { adminRaces, recentLogs, reviewQueue, sources } =
+    await getAdminDashboardData();
+
   return (
     <div className="admin-dashboard">
       <AdminPageHeader
@@ -13,7 +16,7 @@ export default function AdminDashboardPage() {
       />
 
       <div className="admin-summary">
-        <article className="admin-summary__card"><span>Sync success</span><strong>{syncSources.filter((item) => item.status === "success").length}</strong></article>
+        <article className="admin-summary__card"><span>Sync success</span><strong>{sources.filter((item) => item.status === "success").length}</strong></article>
         <article className="admin-summary__card"><span>Needs review</span><strong>{reviewQueue.length}</strong></article>
         <article className="admin-summary__card"><span>Published</span><strong>{adminRaces.filter((race) => race.publishStatus === "published").length}</strong></article>
       </div>

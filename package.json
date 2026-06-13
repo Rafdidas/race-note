@@ -16,7 +16,13 @@
     "db:migrate:local": "wrangler d1 migrations apply DB --local --config wrangler.local.jsonc",
     "db:seed:local": "wrangler d1 execute DB --local --config wrangler.local.jsonc --file drizzle/seed.sql",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "db:seed:remote": "wrangler d1 execute DB --remote --file drizzle/seed.sql"
+    "db:seed:remote": "wrangler d1 execute DB --remote --file drizzle/seed.sql",
+    "semble:setup": "bash scripts/setup-semble.sh",
+    "semble:tree": "bash scripts/semble.sh tree --symbols",
+    "semble:search": "bash scripts/semble.sh search",
+    "semble:deps": "bash scripts/semble.sh deps",
+    "semble:impact": "bash scripts/semble.sh impact",
+    "semble:savings": "bash scripts/semble.sh savings"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.7",

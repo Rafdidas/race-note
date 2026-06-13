@@ -22,3 +22,5 @@ export async function getDb() {
 
   return drizzle(env.DB, { schema });
 }
+
+export type RaceNoteDb = Awaited<ReturnType<typeof getDb>>;

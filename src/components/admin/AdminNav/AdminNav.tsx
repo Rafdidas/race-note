@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { logoutAdmin } from "@/app/admin/actions";
 
 const links = [
   { href: "/admin", label: "Dashboard", index: "01" },
@@ -22,8 +23,9 @@ export function AdminNav() {
         ))}
       </nav>
       <div className="admin-nav__footer">
-        <span className="admin-nav__signal" aria-hidden="true" />
-        Mock data mode
+        <form action={logoutAdmin}>
+          <button type="submit">Logout</button>
+        </form>
       </div>
     </aside>
   );
