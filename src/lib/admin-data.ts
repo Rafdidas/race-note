@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { asc, desc, eq, inArray } from "drizzle-orm";
 import {
+  aiContentDrafts,
   raceContents,
   races,
   series,
@@ -46,11 +47,28 @@ async function getAdminRaceRows(id?: string) {
       summaryThreeLines: raceContents.summaryThreeLines,
       beginnerNote: raceContents.beginnerRules,
       variables: raceContents.raceVariables,
+      keyDriversOrTeams: raceContents.keyDriversOrTeams,
+      notificationText: raceContents.notificationText,
+      seoTitle: raceContents.seoTitle,
+      seoDescription: raceContents.seoDescription,
       aiStatus: raceContents.aiStatus,
+      draftStatus: aiContentDrafts.status,
+      draftModel: aiContentDrafts.model,
+      draftErrorMessage: aiContentDrafts.errorMessage,
+      draftGeneratedAt: aiContentDrafts.generatedAt,
+      draftSummaryThreeLines: aiContentDrafts.summaryThreeLines,
+      draftKeyDriversOrTeams: aiContentDrafts.keyDriversOrTeams,
+      draftRaceVariables: aiContentDrafts.raceVariables,
+      draftBeginnerRules: aiContentDrafts.beginnerRules,
+      draftMustWatchReason: aiContentDrafts.mustWatchReason,
+      draftNotificationText: aiContentDrafts.notificationText,
+      draftSeoTitle: aiContentDrafts.seoTitle,
+      draftSeoDescription: aiContentDrafts.seoDescription,
     })
     .from(races)
     .innerJoin(series, eq(races.seriesId, series.id))
     .leftJoin(raceContents, eq(raceContents.raceId, races.id))
+    .leftJoin(aiContentDrafts, eq(aiContentDrafts.raceId, races.id))
     .where(id ? eq(races.id, id) : undefined)
     .orderBy(asc(races.startDate));
 

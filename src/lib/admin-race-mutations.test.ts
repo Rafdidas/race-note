@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   canPublishAdminRace,
+  parseAdminAiDraftForm,
+  parseAdminGenerationConfirmation,
   parseAdminSessionForm,
   parseAdminRaceForm,
 } from "./admin-race-mutations";
@@ -17,6 +19,10 @@ function validFormData() {
   formData.set("mustWatchReason", "야간 주행을 보세요.");
   formData.set("beginnerRules", "여러 클래스가 함께 달립니다.");
   formData.set("raceVariables", "Night running\nTraffic");
+  formData.set("keyDriversOrTeams", "확인 가능한 참가 정보");
+  formData.set("notificationText", "주말 레이스를 확인하세요.");
+  formData.set("seoTitle", "르망 24시 관전 가이드");
+  formData.set("seoDescription", "르망 24시 일정과 관전 포인트");
   formData.set("sessionIds", "session-start");
   formData.set("session.session-start.name", "Race Start");
   formData.set("session.session-start.startTimeUtc", "2026-06-13T14:00:00Z");
@@ -38,6 +44,10 @@ test("parses a valid admin race correction form", () => {
       mustWatchReason: "야간 주행을 보세요.",
       beginnerRules: "여러 클래스가 함께 달립니다.",
       raceVariables: ["Night running", "Traffic"],
+      keyDriversOrTeams: "확인 가능한 참가 정보",
+      notificationText: "주말 레이스를 확인하세요.",
+      seoTitle: "르망 24시 관전 가이드",
+      seoDescription: "르망 24시 일정과 관전 포인트",
     },
     sessions: [
       {
@@ -48,6 +58,31 @@ test("parses a valid admin race correction form", () => {
       },
     ],
   });
+});
+
+test("parses all eight editable AI draft fields", () => {
+  const formData = validFormData();
+  assert.deepEqual(parseAdminAiDraftForm(formData), {
+    summaryThreeLines: ["첫 줄", "둘째 줄", "셋째 줄"],
+    keyDriversOrTeams: "확인 가능한 참가 정보",
+    raceVariables: ["Night running", "Traffic"],
+    beginnerRules: "여러 클래스가 함께 달립니다.",
+    mustWatchReason: "야간 주행을 보세요.",
+    notificationText: "주말 레이스를 확인하세요.",
+    seoTitle: "르망 24시 관전 가이드",
+    seoDescription: "르망 24시 일정과 관전 포인트",
+  });
+});
+
+test("requires explicit confirmation before regenerating protected content", () => {
+  assert.throws(
+    () => parseAdminGenerationConfirmation(new FormData(), "reviewed"),
+    /confirmation/i,
+  );
+  const confirmed = new FormData();
+  confirmed.set("confirmRegeneration", "on");
+  assert.doesNotThrow(() => parseAdminGenerationConfirmation(confirmed, "published"));
+  assert.doesNotThrow(() => parseAdminGenerationConfirmation(new FormData(), "empty"));
 });
 
 test("rejects invalid date ranges and non-UTC session timestamps", () => {

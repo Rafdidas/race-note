@@ -5,10 +5,12 @@ import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { adminSessions } from "@/db/schema";
 import {
+  createLocalAdminSessionToken,
   createAdminSessionToken,
   hashAdminSessionToken,
   isAdminSessionExpired,
   verifyAdminPassword,
+  verifyLocalAdminSessionToken,
 } from "@/lib/admin-auth-crypto";
 import { getDb } from "@/lib/db";
 
@@ -42,17 +44,23 @@ export async function createAdminSession(): Promise<void> {
   const sessionToken = await hashAdminSessionToken(rawToken, sessionSecret);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + ADMIN_SESSION_DURATION_MS);
-  const db = await getDb();
+  const cookieToken =
+    process.env.NODE_ENV === "development"
+      ? await createLocalAdminSessionToken(sessionSecret, expiresAt)
+      : rawToken;
 
-  await db.insert(adminSessions).values({
-    id: crypto.randomUUID(),
-    sessionToken,
-    expiresAt: expiresAt.toISOString(),
-    createdAt: now.toISOString(),
-  });
+  if (process.env.NODE_ENV !== "development") {
+    const db = await getDb();
+    await db.insert(adminSessions).values({
+      id: crypto.randomUUID(),
+      sessionToken,
+      expiresAt: expiresAt.toISOString(),
+      createdAt: now.toISOString(),
+    });
+  }
 
   const cookieStore = await cookies();
-  cookieStore.set(ADMIN_SESSION_COOKIE, rawToken, {
+  cookieStore.set(ADMIN_SESSION_COOKIE, cookieToken, {
     expires: expiresAt,
     httpOnly: true,
     path: "/admin",
@@ -70,6 +78,9 @@ export const hasAdminSession = cache(async (): Promise<boolean> => {
   }
 
   const { sessionSecret } = getAdminSecrets();
+  if (process.env.NODE_ENV === "development") {
+    return verifyLocalAdminSessionToken(rawToken, sessionSecret);
+  }
   const sessionToken = await hashAdminSessionToken(rawToken, sessionSecret);
   const db = await getDb();
   const rows = await db
@@ -112,7 +123,7 @@ export async function deleteAdminSession(): Promise<void> {
     secure: process.env.NODE_ENV === "production",
   });
 
-  if (rawToken) {
+  if (rawToken && process.env.NODE_ENV !== "development") {
     const { sessionSecret } = getAdminSecrets();
     const sessionToken = await hashAdminSessionToken(rawToken, sessionSecret);
     const db = await getDb();

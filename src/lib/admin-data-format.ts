@@ -125,6 +125,29 @@ export function mapAdminRace(
     summaryThreeLines: race.summaryThreeLines ?? [],
     beginnerNote: race.beginnerNote ?? "",
     variables: race.variables ?? [],
+    keyDriversOrTeams: race.keyDriversOrTeams ?? "",
+    notificationText: race.notificationText ?? "",
+    seoTitle: race.seoTitle ?? "",
+    seoDescription: race.seoDescription ?? "",
+    aiDraft:
+      race.draftStatus === "ready" ||
+      race.draftStatus === "failed" ||
+      race.draftStatus === "applied"
+        ? {
+            status: race.draftStatus,
+            model: race.draftModel ?? "",
+            errorMessage: race.draftErrorMessage ?? "",
+            generatedAt: formatAdminKstDateTime(race.draftGeneratedAt),
+            summaryThreeLines: race.draftSummaryThreeLines ?? [],
+            keyDriversOrTeams: race.draftKeyDriversOrTeams ?? "",
+            raceVariables: race.draftRaceVariables ?? [],
+            beginnerRules: race.draftBeginnerRules ?? "",
+            mustWatchReason: race.draftMustWatchReason ?? "",
+            notificationText: race.draftNotificationText ?? "",
+            seoTitle: race.draftSeoTitle ?? "",
+            seoDescription: race.draftSeoDescription ?? "",
+          }
+        : null,
     sessions: relatedSessions,
   };
 }
@@ -139,6 +162,10 @@ export function buildAdminReviewQueue(
 
     if (race.aiStatus === "generated" || race.aiStatus === "needs-review") {
       return [{ race, reason: "AI content review required", status: "needs-review" }];
+    }
+
+    if (race.aiDraft?.status === "ready") {
+      return [{ race, reason: "AI draft review required", status: "needs-review" }];
     }
 
     return [];

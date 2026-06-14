@@ -26,7 +26,23 @@ const raceRow: AdminRaceRow = {
   summaryThreeLines: [],
   beginnerNote: "클래스별 우승이 따로 존재합니다.",
   variables: [],
+  keyDriversOrTeams: null,
+  notificationText: null,
+  seoTitle: null,
+  seoDescription: null,
   aiStatus: "needs_review",
+  draftStatus: "ready",
+  draftModel: "gpt-5-nano",
+  draftErrorMessage: null,
+  draftGeneratedAt: "2026-06-13T01:00:00Z",
+  draftSummaryThreeLines: ["초안 1", "초안 2", "초안 3"],
+  draftKeyDriversOrTeams: null,
+  draftRaceVariables: ["날씨"],
+  draftBeginnerRules: "초안 규칙",
+  draftMustWatchReason: "초안 이유",
+  draftNotificationText: "초안 알림",
+  draftSeoTitle: "초안 제목",
+  draftSeoDescription: "초안 설명",
 };
 
 const sessionRows: AdminSessionRow[] = [
@@ -59,6 +75,24 @@ test("maps an admin race row with D1 ID, normalized statuses, and KST sessions",
     summaryThreeLines: [],
     beginnerNote: "클래스별 우승이 따로 존재합니다.",
     variables: [],
+    keyDriversOrTeams: "",
+    notificationText: "",
+    seoTitle: "",
+    seoDescription: "",
+    aiDraft: {
+      status: "ready",
+      model: "gpt-5-nano",
+      errorMessage: "",
+      generatedAt: "2026.06.13 10:00",
+      summaryThreeLines: ["초안 1", "초안 2", "초안 3"],
+      keyDriversOrTeams: "",
+      raceVariables: ["날씨"],
+      beginnerRules: "초안 규칙",
+      mustWatchReason: "초안 이유",
+      notificationText: "초안 알림",
+      seoTitle: "초안 제목",
+      seoDescription: "초안 설명",
+    },
     sessions: [
       {
         id: "session-le-mans-start",
@@ -82,6 +116,21 @@ test("derives a single review queue entry and prioritizes schedule review", () =
     {
       race,
       reason: "Schedule review required",
+      status: "needs-review",
+    },
+  ]);
+});
+
+test("adds a ready AI draft to the review queue without changing current content status", () => {
+  const race = {
+    ...mapAdminRace(raceRow, sessionRows),
+    needsReview: false,
+    aiStatus: "empty" as const,
+  };
+  assert.deepEqual(buildAdminReviewQueue([race]), [
+    {
+      race,
+      reason: "AI draft review required",
       status: "needs-review",
     },
   ]);

@@ -253,6 +253,20 @@
   margin-top: 24px;
 }
 
+.admin-confirm {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  font-size: 0.58rem;
+  gap: 7px;
+  margin-bottom: 8px;
+  max-width: 240px;
+}
+
+.admin-ai-draft {
+  border-color: var(--color-wec);
+}
+
 .admin-manual-sessions {
   border-top: 1px solid var(--color-line);
   margin-top: 24px;

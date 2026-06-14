@@ -1,12 +1,15 @@
 import {
   addManualSession,
+  applyAiDraft,
   deleteManualSession,
+  generateAiDraft,
   publishRace,
   reviewAdminRace,
   saveAdminRace,
   unpublishRace,
 } from "@/app/admin/races/actions";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import { AdminActionButton } from "@/components/admin/AdminActionButton/AdminActionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge/StatusBadge";
 import type { AdminRace } from "@/types/admin-data";
 
@@ -22,6 +25,8 @@ const successMessages: Record<string, string> = {
   saved: "수정 내용을 저장했습니다. 콘텐츠는 다시 검수가 필요합니다.",
   "session-added": "수동 세션을 추가했습니다. 레이스 일정 검수가 필요합니다.",
   "session-deleted": "수동 세션을 삭제했습니다. 레이스 일정 검수가 필요합니다.",
+  "ai-generated": "새 AI 초안을 생성했습니다. 현재 콘텐츠는 변경되지 않았습니다.",
+  "ai-applied": "AI 초안을 현재 콘텐츠에 반영했습니다. 공개 전 검수가 필요합니다.",
   unpublished: "레이스를 비공개 초안으로 변경했습니다.",
 };
 
@@ -35,6 +40,10 @@ export function AdminRaceEditor({
   const publishAction = publishRace.bind(null, race.id);
   const unpublishAction = unpublishRace.bind(null, race.id);
   const addSessionAction = addManualSession.bind(null, race.id);
+  const generateAiAction = generateAiDraft.bind(null, race.id);
+  const applyAiAction = applyAiDraft.bind(null, race.id);
+  const protectedContent =
+    race.aiStatus === "reviewed" || race.aiStatus === "published";
   const actionMessage =
     status === "error" ? message : status ? successMessages[status] : undefined;
 
@@ -43,9 +52,15 @@ export function AdminRaceEditor({
       <AdminPageHeader
         actions={
           <>
-            <button className="admin-button" disabled type="button">
-              Generate AI
-            </button>
+            <form action={generateAiAction}>
+              {protectedContent ? (
+                <label className="admin-confirm">
+                  <input name="confirmRegeneration" required type="checkbox" />
+                  Keep current content and generate a new draft
+                </label>
+              ) : null}
+              <AdminActionButton pendingLabel="Generating...">Generate AI</AdminActionButton>
+            </form>
             <form action={reviewAction}>
               <button className="admin-button" type="submit">
                 Mark reviewed
@@ -195,6 +210,22 @@ export function AdminRaceEditor({
                 rows={4}
               />
             </label>
+            <label className="admin-form-grid__wide">
+              Key drivers or teams
+              <textarea defaultValue={race.keyDriversOrTeams} name="keyDriversOrTeams" rows={3} />
+            </label>
+            <label className="admin-form-grid__wide">
+              Notification text
+              <textarea defaultValue={race.notificationText} name="notificationText" rows={2} />
+            </label>
+            <label>
+              SEO title
+              <textarea defaultValue={race.seoTitle} name="seoTitle" rows={2} />
+            </label>
+            <label>
+              SEO description
+              <textarea defaultValue={race.seoDescription} name="seoDescription" rows={3} />
+            </label>
           </div>
         </section>
 
@@ -204,6 +235,75 @@ export function AdminRaceEditor({
           </button>
         </div>
       </form>
+
+      <section className="admin-editor-section admin-ai-draft">
+        <div className="admin-editor-section__heading">
+          <h2>AI draft</h2>
+          <span>
+            {race.aiDraft
+              ? `${race.aiDraft.status} · ${race.aiDraft.model} · ${race.aiDraft.generatedAt}`
+              : "No draft"}
+          </span>
+        </div>
+        {race.aiDraft ? (
+          <>
+            {race.aiDraft.errorMessage ? (
+              <p className="admin-notice admin-notice--error">
+                최근 생성에 실패했습니다. 아래 기존 초안은 유지되었습니다.
+              </p>
+            ) : null}
+            <form action={applyAiAction}>
+              <div className="admin-form-grid">
+                <label className="admin-form-grid__wide">
+                  Three-line summary
+                  <textarea defaultValue={race.aiDraft.summaryThreeLines.join("\n")} name="summaryThreeLines" rows={5} />
+                </label>
+                <label className="admin-form-grid__wide">
+                  Must-watch reason
+                  <textarea defaultValue={race.aiDraft.mustWatchReason} name="mustWatchReason" rows={3} />
+                </label>
+                <label className="admin-form-grid__wide">
+                  Beginner rules
+                  <textarea defaultValue={race.aiDraft.beginnerRules} name="beginnerRules" rows={4} />
+                </label>
+                <label className="admin-form-grid__wide">
+                  Race variables
+                  <textarea defaultValue={race.aiDraft.raceVariables.join("\n")} name="raceVariables" rows={4} />
+                </label>
+                <label className="admin-form-grid__wide">
+                  Key drivers or teams
+                  <textarea defaultValue={race.aiDraft.keyDriversOrTeams} name="keyDriversOrTeams" rows={3} />
+                </label>
+                <label className="admin-form-grid__wide">
+                  Notification text
+                  <textarea defaultValue={race.aiDraft.notificationText} name="notificationText" rows={2} />
+                </label>
+                <label>
+                  SEO title
+                  <textarea defaultValue={race.aiDraft.seoTitle} name="seoTitle" rows={2} />
+                </label>
+                <label>
+                  SEO description
+                  <textarea defaultValue={race.aiDraft.seoDescription} name="seoDescription" rows={3} />
+                </label>
+              </div>
+              <div className="admin-editor-actions">
+                <AdminActionButton
+                  className="admin-button admin-button--primary"
+                  disabled={race.aiDraft.summaryThreeLines.length === 0}
+                  pendingLabel="Applying..."
+                >
+                  Apply draft
+                </AdminActionButton>
+              </div>
+            </form>
+          </>
+        ) : (
+          <p className="admin-change-log">
+            Generate AI to create a separate draft without changing current content.
+          </p>
+        )}
+      </section>
 
       <section className="admin-editor-section">
         <div className="admin-editor-section__heading">

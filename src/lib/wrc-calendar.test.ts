@@ -55,3 +55,6 @@ test("rejects malformed WRC calendar HTML", () => {
   assert.throws(() => parseWrcCalendar("<html></html>"), /WRC calendar/i);
 });
 
+test("parses the official WRC raw calendar JSON response", () => {
+  assert.equal(parseWrcCalendar(JSON.stringify(fixtureData)).length, 1);
+});

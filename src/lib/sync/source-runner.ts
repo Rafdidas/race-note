@@ -42,7 +42,7 @@ export async function runScheduleSource({
 }: {
   db: RaceNoteDb;
   fetcher?: typeof fetch;
-  parse: (body: string) => NormalizedRace[];
+  parse: (body: string) => NormalizedRace[] | Promise<NormalizedRace[]>;
   sourceId: string;
 }): Promise<ScheduleSyncCounts> {
   const sourceRows = await db
@@ -70,7 +70,7 @@ export async function runScheduleSource({
     if (!response.ok) {
       throw new Error(`${source.seriesCode} source returned HTTP ${response.status}`);
     }
-    const races = parse(await readLimitedText(response));
+    const races = await parse(await readLimitedText(response));
     const counts = await applyNormalizedSchedule(db, races, startedAt);
     const finishedAt = new Date().toISOString();
     await runD1Batch(db, [

@@ -68,3 +68,24 @@ export function isAdminSessionExpired(
   const expiresAtTime = new Date(expiresAt).getTime();
   return !Number.isFinite(expiresAtTime) || expiresAtTime <= now.getTime();
 }
+
+export async function createLocalAdminSessionToken(
+  sessionSecret: string,
+  expiresAt: Date,
+): Promise<string> {
+  const expiry = expiresAt.getTime().toString();
+  return `${expiry}.${toBase64Url(await hmac(expiry, sessionSecret))}`;
+}
+
+export async function verifyLocalAdminSessionToken(
+  token: string,
+  sessionSecret: string,
+  now = new Date(),
+): Promise<boolean> {
+  const [expiry, signature, ...extra] = token.split(".");
+  if (!expiry || !signature || extra.length > 0) return false;
+  const expiryTime = Number(expiry);
+  if (!Number.isFinite(expiryTime) || expiryTime <= now.getTime()) return false;
+  const expected = toBase64Url(await hmac(expiry, sessionSecret));
+  return constantTimeEqual(encoder.encode(signature), encoder.encode(expected));
+}

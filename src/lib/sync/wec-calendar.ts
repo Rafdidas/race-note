@@ -1,5 +1,5 @@
 import { parseOfficialDateRange } from "@/lib/sync/calendar-dates";
-import type { NormalizedRace } from "@/lib/sync/types";
+import type { NormalizedRace, NormalizedSession } from "@/lib/sync/types";
 
 const countries: Record<string, string> = {
   BE: "Belgium",
@@ -13,11 +13,86 @@ const countries: Record<string, string> = {
 };
 
 function clean(value: string): string {
-  return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function extract(block: string, pattern: RegExp): string | null {
   return block.match(pattern)?.[1] ?? null;
+}
+
+function sessionType(name: string): NormalizedSession["type"] {
+  if (/race/i.test(name)) return "race";
+  if (/qualifying|hyperpole/i.test(name)) return "qualifying";
+  if (/practice/i.test(name)) return "practice";
+  return "other";
+}
+
+function sessionKey(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function selectWecDetailRace(
+  races: NormalizedRace[],
+  today = new Date().toISOString().slice(0, 10),
+): NormalizedRace | null {
+  return (
+    [...races]
+      .filter((race) => race.endDate >= today)
+      .sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null
+  );
+}
+
+export function parseWecRaceSessions(
+  html: string,
+  raceSourceKey: string,
+  raceName: string,
+): NormalizedSession[] {
+  const sessions: NormalizedSession[] = [];
+
+  for (const match of html.matchAll(
+    /<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi,
+  )) {
+    let data: unknown;
+    try {
+      data = JSON.parse(match[1]);
+    } catch {
+      continue;
+    }
+    if (!isRecord(data) || !Array.isArray(data.subEvent)) continue;
+    for (const event of data.subEvent) {
+      if (!isRecord(event)) continue;
+      const id = typeof event["@id"] === "string" ? event["@id"] : null;
+      const rawName = typeof event.name === "string" ? event.name : null;
+      const rawStartDate =
+        typeof event.startDate === "string" ? event.startDate : null;
+      if (!id || !rawName || !rawStartDate) continue;
+      const fragment = id.split("#")[1];
+      const startTimeUtc = new Date(rawStartDate);
+      if (!fragment || Number.isNaN(startTimeUtc.valueOf())) continue;
+      const name = rawName.endsWith(` - ${raceName}`)
+        ? rawName.slice(0, -(` - ${raceName}`.length))
+        : rawName;
+      sessions.push({
+        sourceKey: `${raceSourceKey}:${sessionKey(fragment)}`,
+        name,
+        type: sessionType(name),
+        startTimeUtc: startTimeUtc.toISOString(),
+      });
+    }
+  }
+
+  return sessions.sort((a, b) => a.startTimeUtc.localeCompare(b.startTimeUtc));
 }
 
 export function parseWecCalendar(

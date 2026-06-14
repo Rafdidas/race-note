@@ -30,9 +30,12 @@ function cellText(cell: unknown): string {
 }
 
 export function parseWrcCalendar(html: string): NormalizedRace[] {
-  const json = html.match(
-    /<script type="application\/json" id="rb3-prerender-data-cache">([\s\S]*?)<\/script>/i,
-  )?.[1];
+  const trimmed = html.trim();
+  const json = trimmed.startsWith("{")
+    ? trimmed
+    : html.match(
+        /<script type="application\/json" id="rb3-prerender-data-cache">([\s\S]*?)<\/script>/i,
+      )?.[1];
   if (!json) throw new Error("WRC calendar data was not found");
   let data: unknown;
   try {

@@ -17,6 +17,7 @@ const sessionTypes = [
   "other",
 ] as const;
 const aiStatuses = ["empty", "generated", "needs_review", "reviewed", "published"] as const;
+const aiDraftStatuses = ["ready", "failed", "applied"] as const;
 const sourceTypes = ["ics", "api", "html", "manual"] as const;
 const syncStatuses = ["success", "failed", "partial"] as const;
 const entityTypes = ["race", "session", "content"] as const;
@@ -119,6 +120,35 @@ export const raceContents = sqliteTable(
   (table) => [index("race_contents_ai_status_idx").on(table.aiStatus)],
 );
 
+export const aiContentDrafts = sqliteTable(
+  "ai_content_drafts",
+  {
+    id: text("id").primaryKey(),
+    raceId: text("race_id")
+      .notNull()
+      .unique()
+      .references(() => races.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    summaryThreeLines: text("summary_three_lines", { mode: "json" }).$type<string[]>(),
+    keyDriversOrTeams: text("key_drivers_or_teams"),
+    raceVariables: text("race_variables", { mode: "json" }).$type<string[]>(),
+    beginnerRules: text("beginner_rules"),
+    mustWatchReason: text("must_watch_reason"),
+    notificationText: text("notification_text"),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
+    status: text("status", { enum: aiDraftStatuses }).notNull().default("ready"),
+    model: text("model").notNull(),
+    errorMessage: text("error_message"),
+    generatedAt: text("generated_at"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("ai_content_drafts_status_idx").on(table.status),
+    index("ai_content_drafts_generated_at_idx").on(table.generatedAt),
+  ],
+);
+
 export const syncSources = sqliteTable(
   "sync_sources",
   {
@@ -215,5 +245,7 @@ export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
 export type RaceContent = typeof raceContents.$inferSelect;
 export type NewRaceContent = typeof raceContents.$inferInsert;
+export type AiContentDraft = typeof aiContentDrafts.$inferSelect;
+export type NewAiContentDraft = typeof aiContentDrafts.$inferInsert;
 export type ManualOverride = typeof manualOverrides.$inferSelect;
 export type NewManualOverride = typeof manualOverrides.$inferInsert;

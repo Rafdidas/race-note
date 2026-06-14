@@ -41,7 +41,27 @@ export type AdminRace = {
   summaryThreeLines: string[];
   beginnerNote: string;
   variables: string[];
+  keyDriversOrTeams: string;
+  notificationText: string;
+  seoTitle: string;
+  seoDescription: string;
+  aiDraft: AdminAiDraft | null;
   sessions: AdminSession[];
+};
+
+export type AdminAiDraft = {
+  status: "ready" | "failed" | "applied";
+  model: string;
+  errorMessage: string;
+  generatedAt: string;
+  summaryThreeLines: string[];
+  keyDriversOrTeams: string;
+  raceVariables: string[];
+  beginnerRules: string;
+  mustWatchReason: string;
+  notificationText: string;
+  seoTitle: string;
+  seoDescription: string;
 };
 
 export type AdminReviewQueueItem = {
@@ -89,7 +109,23 @@ export type AdminRaceRow = {
   summaryThreeLines: string[] | null;
   beginnerNote: string | null;
   variables: string[] | null;
+  keyDriversOrTeams: string | null;
+  notificationText: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
   aiStatus: string | null;
+  draftStatus: string | null;
+  draftModel: string | null;
+  draftErrorMessage: string | null;
+  draftGeneratedAt: string | null;
+  draftSummaryThreeLines: string[] | null;
+  draftKeyDriversOrTeams: string | null;
+  draftRaceVariables: string[] | null;
+  draftBeginnerRules: string | null;
+  draftMustWatchReason: string | null;
+  draftNotificationText: string | null;
+  draftSeoTitle: string | null;
+  draftSeoDescription: string | null;
 };
 
 export type AdminSessionRow = {

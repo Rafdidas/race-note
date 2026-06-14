@@ -11,6 +11,10 @@ export type AdminRaceMutationInput = {
     mustWatchReason: string | null;
     beginnerRules: string | null;
     raceVariables: string[];
+    keyDriversOrTeams: string | null;
+    notificationText: string | null;
+    seoTitle: string | null;
+    seoDescription: string | null;
   };
   sessions: Array<{
     id: string;
@@ -114,9 +118,44 @@ export function parseAdminRaceForm(formData: FormData): AdminRaceMutationInput {
       mustWatchReason: optionalString(formData, "mustWatchReason"),
       beginnerRules: optionalString(formData, "beginnerRules"),
       raceVariables: lines(formData, "raceVariables"),
+      keyDriversOrTeams: optionalString(formData, "keyDriversOrTeams"),
+      notificationText: optionalString(formData, "notificationText"),
+      seoTitle: optionalString(formData, "seoTitle"),
+      seoDescription: optionalString(formData, "seoDescription"),
     },
     sessions,
   };
+}
+
+export function parseAdminAiDraftForm(
+  formData: FormData,
+): AdminRaceMutationInput["content"] {
+  return {
+    summaryThreeLines: lines(formData, "summaryThreeLines"),
+    keyDriversOrTeams: optionalString(formData, "keyDriversOrTeams"),
+    raceVariables: lines(formData, "raceVariables"),
+    beginnerRules: optionalString(formData, "beginnerRules"),
+    mustWatchReason: optionalString(formData, "mustWatchReason"),
+    notificationText: optionalString(formData, "notificationText"),
+    seoTitle: optionalString(formData, "seoTitle"),
+    seoDescription: optionalString(formData, "seoDescription"),
+  };
+}
+
+export function requiresRegenerationConfirmation(aiStatus: string): boolean {
+  return aiStatus === "reviewed" || aiStatus === "published";
+}
+
+export function parseAdminGenerationConfirmation(
+  formData: FormData,
+  aiStatus: string,
+): void {
+  if (
+    requiresRegenerationConfirmation(aiStatus) &&
+    formData.get("confirmRegeneration") !== "on"
+  ) {
+    throw new Error("Regeneration confirmation is required");
+  }
 }
 
 export function canPublishAdminRace(candidate: PublishCandidate): boolean {

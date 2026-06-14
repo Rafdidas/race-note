@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  createLocalAdminSessionToken,
   createAdminSessionToken,
   hashAdminSessionToken,
   isAdminSessionExpired,
   verifyAdminPassword,
+  verifyLocalAdminSessionToken,
 } from "./admin-auth-crypto";
 
 test("verifies the configured admin password without accepting a different value", async () => {
@@ -30,4 +32,26 @@ test("creates unique URL-safe session tokens", () => {
 test("detects expired admin sessions", () => {
   assert.equal(isAdminSessionExpired("2026-06-13T00:00:00.000Z", new Date("2026-06-13T00:00:01.000Z")), true);
   assert.equal(isAdminSessionExpired("2026-06-13T00:00:01.000Z", new Date("2026-06-13T00:00:00.000Z")), false);
+});
+
+test("creates a signed local admin session token and rejects tampering or expiry", async () => {
+  const now = new Date("2026-06-14T00:00:00.000Z");
+  const token = await createLocalAdminSessionToken(
+    "session-secret",
+    new Date("2026-06-14T01:00:00.000Z"),
+  );
+
+  assert.equal(await verifyLocalAdminSessionToken(token, "session-secret", now), true);
+  assert.equal(
+    await verifyLocalAdminSessionToken(`${token}tampered`, "session-secret", now),
+    false,
+  );
+  assert.equal(
+    await verifyLocalAdminSessionToken(
+      token,
+      "session-secret",
+      new Date("2026-06-14T01:00:01.000Z"),
+    ),
+    false,
+  );
 });

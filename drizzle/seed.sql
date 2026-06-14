@@ -15,9 +15,9 @@ ON CONFLICT(id) DO UPDATE SET
 
 INSERT INTO races (id, series_id, season, round, name, slug, country, location, venue_name, start_date, end_date, timezone, status, publish_status, is_featured, needs_review, source_key, created_at, updated_at)
 VALUES
-  ('race-canada-2026', 'series-f1', 2026, 10, 'Canadian Grand Prix', 'canadian-grand-prix-2026', 'Canada', 'Montréal', 'Circuit Gilles Villeneuve', '2026-06-12', '2026-06-15', 'America/Toronto', 'scheduled', 'published', 1, 0, 'seed-f1-canada-2026', '2026-06-11T00:00:00Z', '2026-06-11T00:00:00Z'),
+  ('race-canada-2026', 'series-f1', 2026, 10, 'Canadian Grand Prix', 'canadian-grand-prix-2026', 'Canada', 'Montréal', 'Circuit Gilles Villeneuve', '2026-06-12', '2026-06-15', 'America/Toronto', 'scheduled', 'hidden', 0, 0, 'seed-f1-canada-2026', '2026-06-11T00:00:00Z', '2026-06-11T00:00:00Z'),
   ('race-le-mans-2026', 'series-wec', 2026, 4, '24 Hours of Le Mans', '24-hours-of-le-mans-2026', 'France', 'Le Mans', 'Circuit de la Sarthe', '2026-06-13', '2026-06-14', 'Europe/Paris', 'scheduled', 'published', 1, 0, 'seed-wec-le-mans-2026', '2026-06-11T00:00:00Z', '2026-06-11T00:00:00Z'),
-  ('race-acropolis-2026', 'series-wrc', 2026, 7, 'Acropolis Rally Greece', 'acropolis-rally-greece-2026', 'Greece', 'Lamia', NULL, '2026-06-25', '2026-06-28', 'Europe/Athens', 'scheduled', 'published', 1, 1, 'seed-wrc-acropolis-2026', '2026-06-11T00:00:00Z', '2026-06-11T00:00:00Z')
+  ('race-acropolis-2026', 'series-wrc', 2026, 7, 'Acropolis Rally Greece', 'acropolis-rally-greece-2026', 'Greece', 'Lamia', NULL, '2026-06-25', '2026-06-28', 'Europe/Athens', 'scheduled', 'hidden', 0, 0, 'seed-wrc-acropolis-2026', '2026-06-11T00:00:00Z', '2026-06-11T00:00:00Z')
 ON CONFLICT(id) DO UPDATE SET
   series_id = excluded.series_id,
   season = excluded.season,
