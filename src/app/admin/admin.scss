@@ -44,6 +44,30 @@
   }
 }
 
+.admin-runtime-notice {
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-strong);
+  display: flex;
+  gap: 18px;
+  margin-bottom: clamp(28px, 4vw, 48px);
+  padding: 14px 16px;
+
+  strong {
+    color: var(--color-f1);
+    flex: 0 0 auto;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  span {
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    line-height: 1.6;
+  }
+}
+
 .admin-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -372,6 +396,12 @@
 }
 
 @media (max-width: 600px) {
+  .admin-runtime-notice {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .admin-form-grid {
     grid-template-columns: 1fr;
 

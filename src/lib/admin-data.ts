@@ -16,6 +16,7 @@ import {
 } from "@/data/mock-admin";
 import { getDb } from "@/lib/db";
 import { requireAdminSession } from "@/lib/admin-auth";
+import { getAdminRuntime } from "@/lib/admin-runtime";
 import {
   buildAdminReviewQueue,
   mapAdminRace,
@@ -99,7 +100,7 @@ async function getAdminRaceRows(id?: string) {
 export async function getAdminRaces(): Promise<AdminRace[]> {
   await requireAdminSession();
 
-  if (process.env.NODE_ENV === "development") {
+  if (getAdminRuntime(process.env.NODE_ENV).usesMockData) {
     return mockAdminRaces;
   }
 
@@ -111,7 +112,7 @@ export const getAdminRaceById = cache(
   async (id: string): Promise<AdminRace | null> => {
     await requireAdminSession();
 
-    if (process.env.NODE_ENV === "development") {
+    if (getAdminRuntime(process.env.NODE_ENV).usesMockData) {
       return mockAdminRaces.find((race) => race.id === id) ?? null;
     }
 
@@ -124,7 +125,7 @@ export const getAdminRaceById = cache(
 export async function getAdminSyncOverview(): Promise<AdminSyncOverview> {
   await requireAdminSession();
 
-  if (process.env.NODE_ENV === "development") {
+  if (getAdminRuntime(process.env.NODE_ENV).usesMockData) {
     return {
       lastRun:
         mockSyncSources
