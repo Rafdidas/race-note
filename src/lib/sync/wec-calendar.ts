@@ -24,6 +24,13 @@ function extract(block: string, pattern: RegExp): string | null {
   return block.match(pattern)?.[1] ?? null;
 }
 
+function detailHref(html: string): string | null {
+  return extract(
+    html,
+    /<link[^>]+rel="canonical"[^>]+href="https:\/\/www\.fiawec\.com\/en\/race\/([^"]+)"/i,
+  );
+}
+
 function sessionType(name: string): NormalizedSession["type"] {
   if (/race/i.test(name)) return "race";
   if (/qualifying|hyperpole/i.test(name)) return "qualifying";
@@ -95,6 +102,21 @@ export function parseWecRaceSessions(
   return sessions.sort((a, b) => a.startTimeUtc.localeCompare(b.startTimeUtc));
 }
 
+export function applyWecDetailSessions(
+  races: NormalizedRace[],
+  html: string,
+): NormalizedRace[] {
+  const href = detailHref(html);
+  if (!href) return races;
+  const sourceKey = `fiawec:${href}`;
+  const detailRace = races.find((race) => race.sourceKey === sourceKey);
+  if (!detailRace) return races;
+  const detailSessions = parseWecRaceSessions(html, sourceKey, detailRace.name);
+  return races.map((race) =>
+    race.sourceKey === sourceKey ? { ...race, sessions: detailSessions } : race,
+  );
+}
+
 export function parseWecCalendar(
   html: string,
   season = new Date().getUTCFullYear(),
@@ -109,10 +131,13 @@ export function parseWecCalendar(
     ),
   ];
   const races: NormalizedRace[] = [];
+  const currentDetailHref = detailHref(html);
 
   for (const match of blocks) {
     const block = match[1];
-    const href = extract(block, /href="\/en\/race\/([^"]+)"/i);
+    const href =
+      extract(block, /href="\/en\/race\/([^"]+)"/i) ??
+      currentDetailHref;
     if (!href || href.includes("prologue")) continue;
     const firstTitle = extract(
       block,
@@ -127,7 +152,7 @@ export function parseWecCalendar(
       /class="fs-10 fs-lg-6 text-primary[^"]*">([\s\S]*?)<\/div>/i,
     );
     const countryCode = extract(block, /class="flag:([A-Z]{2})\b/i);
-    if (!firstTitle || !location || !date) {
+    if (firstTitle === null || !location || !date) {
       throw new Error("WEC calendar contained malformed race rows");
     }
     const range = parseOfficialDateRange(clean(date));

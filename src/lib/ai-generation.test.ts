@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { selectAutomaticAiTargets } from "./ai/content-generation";
+import {
+  safeGenerationError,
+  selectAutomaticAiTargets,
+} from "./ai/content-generation";
 
 const candidate = (
   id: string,
@@ -35,4 +38,23 @@ test("excludes protected content and races with a ready draft", () => {
     "2026-06-14",
   );
   assert.deepEqual(selected.map((item) => item.id), ["applied"]);
+});
+
+test("keeps safe AI failure categories for administrator diagnostics", () => {
+  assert.equal(
+    safeGenerationError(new Error("OpenAI request failed (429)")),
+    "OpenAI request failed (429)",
+  );
+  assert.equal(
+    safeGenerationError(new Error("OpenAI structured output is invalid")),
+    "OpenAI structured output is invalid",
+  );
+  assert.equal(
+    safeGenerationError(new DOMException("request timed out", "TimeoutError")),
+    "OpenAI request timed out",
+  );
+  assert.equal(
+    safeGenerationError(new Error("secret provider detail")),
+    "AI content generation failed",
+  );
 });

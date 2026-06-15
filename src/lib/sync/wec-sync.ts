@@ -1,6 +1,7 @@
 import type { RaceNoteDb } from "@/lib/db";
 import { runScheduleSource } from "@/lib/sync/source-runner";
 import {
+  applyWecDetailSessions,
   parseWecCalendar,
   parseWecRaceSessions,
   selectWecDetailRace,
@@ -15,7 +16,7 @@ export function runWecScheduleSync(db: RaceNoteDb, fetcher: typeof fetch = fetch
     fetcher,
     sourceId: "source-wec-official",
     parse: async (body) => {
-      const races = parseWecCalendar(body);
+      const races = applyWecDetailSessions(parseWecCalendar(body), body);
       const detailRace = selectWecDetailRace(races);
       if (!detailRace) return races;
       const detailHref = detailRace.sourceKey.replace(/^fiawec:/, "");

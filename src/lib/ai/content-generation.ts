@@ -48,8 +48,16 @@ export function selectAutomaticAiTargets(
     .slice(0, 3);
 }
 
-function safeGenerationError(error: unknown): string {
-  if (error instanceof Error && error.message.startsWith("OpenAI request failed")) {
+export function safeGenerationError(error: unknown): string {
+  if (error instanceof DOMException && error.name === "TimeoutError") {
+    return "OpenAI request timed out";
+  }
+  if (
+    error instanceof Error &&
+    (error.message.startsWith("OpenAI request failed") ||
+      error.message.startsWith("OpenAI response") ||
+      error.message.startsWith("OpenAI structured output"))
+  ) {
     return error.message.slice(0, 160);
   }
   return "AI content generation failed";

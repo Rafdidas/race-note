@@ -10,6 +10,13 @@ import type { NormalizedRace } from "@/lib/sync/types";
 
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_SOURCE_BYTES = 3_000_000;
+const RACENOTE_USER_AGENT = "RaceNote/1.0 (+https://race-note.rafdi.workers.dev)";
+
+export function scheduleSourceRequestHeaders(seriesCode: string): Headers {
+  const headers = new Headers({ accept: "application/json,text/html" });
+  if (seriesCode === "WRC") headers.set("user-agent", RACENOTE_USER_AGENT);
+  return headers;
+}
 
 async function readLimitedText(response: Response): Promise<string> {
   const contentLength = Number(response.headers.get("content-length"));
@@ -61,7 +68,7 @@ export async function runScheduleSource({
     let response: Response;
     try {
       response = await fetcher(source.sourceUrl, {
-        headers: { accept: "application/json,text/html" },
+        headers: scheduleSourceRequestHeaders(source.seriesCode),
         signal: controller.signal,
       });
     } finally {

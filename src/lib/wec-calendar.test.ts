@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  applyWecDetailSessions,
   parseWecCalendar,
   parseWecRaceSessions,
   selectWecDetailRace,
@@ -126,4 +127,37 @@ test("parses exact WEC race sessions from structured detail data", () => {
       },
     ],
   );
+});
+
+test("restores the current WEC detail race from its canonical URL and keeps its sessions", () => {
+  const detail = `
+    <link rel="canonical" href="https://www.fiawec.com/en/race/24-hours-of-le-mans-2026"/>
+    <script type="application/ld+json">
+      {
+        "@type": "SportsEvent",
+        "@id": "https://www.fiawec.com/en/race/24-hours-of-le-mans-2026",
+        "name": "WEC 24 Hours of Le Mans 2026",
+        "subEvent": [
+          {
+            "@id": "https://www.fiawec.com/en/race/24-hours-of-le-mans-2026#Race",
+            "name": "Race - 24 Hours of Le Mans",
+            "startDate": "2026-06-13T16:00:00+02:00"
+          }
+        ]
+      }
+    </script>
+    <div class="splide inner-slider" data-year="2026">
+      <div class="calendar-item"><div class="infos-full">
+        <div class="ff-normal fw-bold fs-9 fs-lg-5 text-uppercase lh-1 mb-2"></div>
+        <div class="fs-9 fs-lg-4 ff-headings fw-bold text-uppercase lh-1 mb-4">24 Hours of Le Mans</div>
+        <div class="fs-10 fs-lg-6 text-primary text-uppercase mb-4">From 10 to 14 June 2026</div>
+      </div></div>
+    </div>`;
+
+  const races = applyWecDetailSessions(parseWecCalendar(detail), detail);
+
+  assert.equal(races.length, 1);
+  assert.equal(races[0]?.sourceKey, "fiawec:24-hours-of-le-mans-2026");
+  assert.equal(races[0]?.sessions.length, 1);
+  assert.equal(races[0]?.sessions[0]?.name, "Race");
 });
