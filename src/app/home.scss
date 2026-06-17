@@ -5,8 +5,7 @@
 
   &__hero {
     border-bottom: 1px solid var(--color-line);
-    min-height: min(720px, calc(100svh - 72px));
-    padding-block: clamp(56px, 9vw, 130px) 36px;
+    padding-block: clamp(40px, 5vw, 72px) 32px;
     position: relative;
 
     &::before {
@@ -32,11 +31,11 @@
   }
 
   &__hero-title {
-    font-size: clamp(4.2rem, 14vw, 13.5rem);
+    font-size: clamp(3.4rem, 9vw, 7.5rem);
     font-weight: 600;
     letter-spacing: -0.105em;
     line-height: 0.78;
-    margin: clamp(70px, 12vw, 150px) 0 0 -0.08em;
+    margin: clamp(28px, 5vw, 52px) 0 0 -0.08em;
     max-width: 7ch;
     position: relative;
     text-transform: uppercase;
@@ -48,7 +47,7 @@
     display: grid;
     gap: 30px;
     grid-template-columns: 1fr 1fr;
-    margin-top: clamp(70px, 10vw, 140px);
+    margin-top: clamp(36px, 5vw, 60px);
   }
 
   &__hero-copy {
