@@ -81,7 +81,7 @@ function readOutputText(value: unknown): string {
 }
 
 export class OpenAiContentGenerator {
-  readonly model = "gpt-5-nano";
+  readonly model = "gpt-4o-mini";
 
   constructor(
     private readonly apiKey: string,
