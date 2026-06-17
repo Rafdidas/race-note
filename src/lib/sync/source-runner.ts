@@ -12,6 +12,7 @@ const FETCH_TIMEOUT_MS = 15_000;
 const MAX_SOURCE_BYTES = 3_000_000;
 const RACENOTE_USER_AGENT = "RaceNote/1.0 (+https://race-note.rafdi.workers.dev)";
 const SAFE_MESSAGE_MAX_LEN = 160;
+const ERR_RESPONSE_TOO_LARGE = "Schedule source response was too large";
 
 export function safeScheduleSyncError(error: unknown, seriesCode: string): string {
   if (
@@ -25,14 +26,8 @@ export function safeScheduleSyncError(error: unknown, seriesCode: string): strin
     if (/returned HTTP \d+/.test(error.message)) {
       return error.message.slice(0, SAFE_MESSAGE_MAX_LEN);
     }
-    if (error.message === "Schedule source response was too large") {
-      return error.message;
-    }
-    if (
-      error.message.startsWith("Enabled sync source") &&
-      error.message.includes("is missing")
-    ) {
-      return `${seriesCode} sync source is not configured`;
+    if (error.message === ERR_RESPONSE_TOO_LARGE) {
+      return ERR_RESPONSE_TOO_LARGE.slice(0, SAFE_MESSAGE_MAX_LEN);
     }
   }
 
@@ -48,7 +43,7 @@ export function scheduleSourceRequestHeaders(seriesCode: string): Headers {
 async function readLimitedText(response: Response): Promise<string> {
   const contentLength = Number(response.headers.get("content-length"));
   if (Number.isFinite(contentLength) && contentLength > MAX_SOURCE_BYTES) {
-    throw new Error("Schedule source response was too large");
+    throw new Error(ERR_RESPONSE_TOO_LARGE);
   }
   if (!response.body) return response.text();
   const reader = response.body.getReader();
@@ -61,7 +56,7 @@ async function readLimitedText(response: Response): Promise<string> {
     total += value.byteLength;
     if (total > MAX_SOURCE_BYTES) {
       await reader.cancel();
-      throw new Error("Schedule source response was too large");
+      throw new Error(ERR_RESPONSE_TOO_LARGE);
     }
     result += decoder.decode(value, { stream: true });
   }

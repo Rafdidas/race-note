@@ -44,12 +44,9 @@ test("normalises TimeoutError to safe message", () => {
   );
 });
 
-test("normalises missing source error to safe message", () => {
+test("sanitises unrecognised Error messages to the generic fallback", () => {
   const error = new Error("Enabled sync source abc-123 is missing");
-  assert.equal(
-    safeScheduleSyncError(error, "F1"),
-    "F1 sync source is not configured",
-  );
+  assert.equal(safeScheduleSyncError(error, "F1"), "F1 schedule sync failed");
 });
 
 test("sanitises D1 batch error containing SQL and parameters", () => {
