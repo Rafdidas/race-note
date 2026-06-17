@@ -41,17 +41,17 @@ const responseSchema = {
       maxItems: 3,
       items: { type: "string", maxLength: 160 },
     },
-    keyDriversOrTeams: { type: ["string", "null"], maxLength: 300 },
+    keyDriversOrTeams: { anyOf: [{ type: "string", maxLength: 300 }, { type: "null" }] },
     raceVariables: {
       type: "array",
       maxItems: 5,
       items: { type: "string", maxLength: 120 },
     },
-    beginnerRules: { type: ["string", "null"], maxLength: 800 },
-    mustWatchReason: { type: ["string", "null"], maxLength: 500 },
-    notificationText: { type: ["string", "null"], maxLength: 120 },
-    seoTitle: { type: ["string", "null"], maxLength: 70 },
-    seoDescription: { type: ["string", "null"], maxLength: 160 },
+    beginnerRules: { anyOf: [{ type: "string", maxLength: 800 }, { type: "null" }] },
+    mustWatchReason: { anyOf: [{ type: "string", maxLength: 500 }, { type: "null" }] },
+    notificationText: { anyOf: [{ type: "string", maxLength: 120 }, { type: "null" }] },
+    seoTitle: { anyOf: [{ type: "string", maxLength: 70 }, { type: "null" }] },
+    seoDescription: { anyOf: [{ type: "string", maxLength: 160 }, { type: "null" }] },
   },
 } as const;
 
