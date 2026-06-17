@@ -11,6 +11,33 @@ import type { NormalizedRace } from "@/lib/sync/types";
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_SOURCE_BYTES = 3_000_000;
 const RACENOTE_USER_AGENT = "RaceNote/1.0 (+https://race-note.rafdi.workers.dev)";
+const SAFE_MESSAGE_MAX_LEN = 160;
+
+export function safeScheduleSyncError(error: unknown, seriesCode: string): string {
+  if (
+    error instanceof DOMException &&
+    (error.name === "AbortError" || error.name === "TimeoutError")
+  ) {
+    return `${seriesCode} schedule source request timed out`;
+  }
+
+  if (error instanceof Error) {
+    if (/returned HTTP \d+/.test(error.message)) {
+      return error.message.slice(0, SAFE_MESSAGE_MAX_LEN);
+    }
+    if (error.message === "Schedule source response was too large") {
+      return error.message;
+    }
+    if (
+      error.message.startsWith("Enabled sync source") &&
+      error.message.includes("is missing")
+    ) {
+      return `${seriesCode} sync source is not configured`;
+    }
+  }
+
+  return `${seriesCode} schedule sync failed`;
+}
 
 export function scheduleSourceRequestHeaders(seriesCode: string): Headers {
   const headers = new Headers({ accept: "application/json,text/html" });
