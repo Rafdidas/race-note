@@ -122,7 +122,8 @@ export class OpenAiContentGenerator {
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI request failed (${response.status})`);
+      const errorBody = await response.text().catch(() => "");
+      throw new Error(`OpenAI request failed (${response.status}): ${errorBody.slice(0, 120)}`);
     }
 
     const raw: unknown = await response.json();
