@@ -167,13 +167,38 @@
   &__must-watch,
   &__brief,
   &__note,
-  &__variables {
+  &__variables,
+  &__facts,
+  &__watch,
+  &__history {
     border: 1px solid var(--color-line);
     padding: clamp(22px, 3vw, 40px);
 
     > .section-label {
       margin-bottom: 34px;
     }
+  }
+
+  &__facts,
+  &__watch,
+  &__history {
+    grid-column: 1 / -1;
+  }
+
+  &__next,
+  &__explore {
+    padding-top: var(--section-space);
+
+    > .section-label {
+      margin-bottom: 24px;
+    }
+  }
+
+  &__explore-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-top: 20px;
   }
 
   &__must-watch {

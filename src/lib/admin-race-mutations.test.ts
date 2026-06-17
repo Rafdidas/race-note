@@ -6,7 +6,16 @@ import {
   parseAdminGenerationConfirmation,
   parseAdminSessionForm,
   parseAdminRaceForm,
+  parseRaceFactsForm,
+  parseRaceHistoryForm,
+  parseWatchTargetForm,
 } from "./admin-race-mutations";
+
+function fd(entries: Record<string, string>): FormData {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(entries)) form.set(key, value);
+  return form;
+}
 
 function validFormData() {
   const formData = new FormData();
@@ -147,4 +156,54 @@ test("rejects invalid manual session types and non-UTC timestamps", () => {
   formData.set("type", "final_hour");
   formData.set("startTimeUtc", "2026-06-14T13:00");
   assert.throws(() => parseAdminSessionForm(formData), /UTC/i);
+});
+
+test("parses facts form with numeric coercion and empty-to-null", () => {
+  const input = parseRaceFactsForm(fd({
+    trackLength: "5.807km",
+    laps: "53",
+    corners: "",
+    drsZones: "1",
+  }));
+  assert.equal(input.trackLength, "5.807km");
+  assert.equal(input.laps, 53);
+  assert.equal(input.corners, null);
+  assert.equal(input.drsZones, 1);
+  assert.equal(input.circuitName, null);
+});
+
+test("rejects non-numeric facts number field", () => {
+  assert.throws(() => parseRaceFactsForm(fd({ laps: "abc" })));
+});
+
+test("parses history form with season validation", () => {
+  const input = parseRaceHistoryForm(fd({ season: "2025", winnerDriverName: "Verstappen" }));
+  assert.equal(input.season, 2025);
+  assert.equal(input.winnerDriverName, "Verstappen");
+  assert.equal(input.winnerTeamName, null);
+});
+
+test("rejects invalid season", () => {
+  assert.throws(() => parseRaceHistoryForm(fd({ season: "abc" })));
+  assert.throws(() => parseRaceHistoryForm(fd({ season: "1700" })));
+});
+
+test("parses watch target form", () => {
+  const input = parseWatchTargetForm(fd({
+    targetType: "driver",
+    targetName: "Verstappen",
+    title: "주목",
+    reason: "고속 코너 강점",
+  }));
+  assert.deepEqual(input, {
+    targetType: "driver",
+    targetName: "Verstappen",
+    title: "주목",
+    reason: "고속 코너 강점",
+  });
+});
+
+test("rejects watch target with invalid type or missing fields", () => {
+  assert.throws(() => parseWatchTargetForm(fd({ targetType: "alien", targetName: "x", reason: "y" })));
+  assert.throws(() => parseWatchTargetForm(fd({ targetType: "driver", targetName: "", reason: "y" })));
 });

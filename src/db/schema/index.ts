@@ -23,6 +23,7 @@ const syncStatuses = ["success", "failed", "partial"] as const;
 const entityTypes = ["race", "session", "content"] as const;
 const overrideEntityTypes = ["race", "session"] as const;
 const changeStatuses = ["auto_applied", "needs_review", "ignored"] as const;
+const watchTargetTypes = ["driver", "team", "manufacturer", "car", "manual"] as const;
 
 export const series = sqliteTable("series", {
   id: text("id").primaryKey(),
@@ -226,6 +227,77 @@ export const manualOverrides = sqliteTable(
   ],
 );
 
+export const raceFacts = sqliteTable("race_facts", {
+  id: text("id").primaryKey(),
+  raceId: text("race_id")
+    .notNull()
+    .unique()
+    .references(() => races.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  circuitName: text("circuit_name"),
+  trackLength: text("track_length"),
+  laps: integer("laps"),
+  raceDistance: text("race_distance"),
+  corners: integer("corners"),
+  drsZones: integer("drs_zones"),
+  firstHeld: integer("first_held"),
+  previousWinner: text("previous_winner"),
+  mostWinsDriver: text("most_wins_driver"),
+  mostWinsTeam: text("most_wins_team"),
+  lapRecord: text("lap_record"),
+  poleRecord: text("pole_record"),
+  tyreCompounds: text("tyre_compounds"),
+  overtakeDifficulty: text("overtake_difficulty"),
+  keySector: text("key_sector"),
+  surfaceType: text("surface_type"),
+  totalStages: integer("total_stages"),
+  totalDistance: text("total_distance"),
+  eventDuration: text("event_duration"),
+  classes: text("classes"),
+  weatherNote: text("weather_note"),
+  strategyNote: text("strategy_note"),
+  beginnerNote: text("beginner_note"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const raceHistory = sqliteTable(
+  "race_history",
+  {
+    id: text("id").primaryKey(),
+    raceId: text("race_id")
+      .notNull()
+      .references(() => races.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    season: integer("season").notNull(),
+    winnerDriverName: text("winner_driver_name"),
+    winnerTeamName: text("winner_team_name"),
+    poleDriverName: text("pole_driver_name"),
+    fastestLapDriverName: text("fastest_lap_driver_name"),
+    note: text("note"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [index("race_history_race_id_idx").on(table.raceId, table.season)],
+);
+
+export const raceWatchTargets = sqliteTable(
+  "race_watch_targets",
+  {
+    id: text("id").primaryKey(),
+    raceId: text("race_id")
+      .notNull()
+      .references(() => races.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    targetType: text("target_type", { enum: watchTargetTypes }).notNull(),
+    targetId: text("target_id"),
+    targetName: text("target_name").notNull(),
+    title: text("title"),
+    reason: text("reason").notNull(),
+    displayOrder: integer("display_order").notNull().default(0),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [index("race_watch_targets_race_id_idx").on(table.raceId, table.displayOrder)],
+);
+
 export const adminSessions = sqliteTable(
   "admin_sessions",
   {
@@ -249,3 +321,9 @@ export type AiContentDraft = typeof aiContentDrafts.$inferSelect;
 export type NewAiContentDraft = typeof aiContentDrafts.$inferInsert;
 export type ManualOverride = typeof manualOverrides.$inferSelect;
 export type NewManualOverride = typeof manualOverrides.$inferInsert;
+export type RaceFactsRow = typeof raceFacts.$inferSelect;
+export type NewRaceFactsRow = typeof raceFacts.$inferInsert;
+export type RaceHistoryRow = typeof raceHistory.$inferSelect;
+export type NewRaceHistoryRow = typeof raceHistory.$inferInsert;
+export type RaceWatchTargetRow = typeof raceWatchTargets.$inferSelect;
+export type NewRaceWatchTargetRow = typeof raceWatchTargets.$inferInsert;

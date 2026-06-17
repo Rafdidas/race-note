@@ -3,6 +3,9 @@ import { asc, desc, eq, inArray } from "drizzle-orm";
 import {
   aiContentDrafts,
   raceContents,
+  raceFacts,
+  raceHistory,
+  raceWatchTargets,
   races,
   series,
   sessions,
@@ -118,7 +121,15 @@ export const getAdminRaceById = cache(
 
     const rows = await getAdminRaceRows(id);
     const race = rows.races[0];
-    return race ? mapAdminRace(race, rows.sessions) : null;
+    if (!race) return null;
+
+    const db = await getDb();
+    const [factsRows, historyRows, watchRows] = await Promise.all([
+      db.select().from(raceFacts).where(eq(raceFacts.raceId, id)).limit(1),
+      db.select().from(raceHistory).where(eq(raceHistory.raceId, id)),
+      db.select().from(raceWatchTargets).where(eq(raceWatchTargets.raceId, id)),
+    ]);
+    return mapAdminRace(race, rows.sessions, factsRows[0], historyRows, watchRows);
   },
 );
 

@@ -1,0 +1,28 @@
+.race-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__row {
+    border-top: 1px solid var(--color-line);
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 64px 1fr;
+    padding: 14px 0;
+  }
+
+  &__season {
+    color: var(--color-accent);
+    font-size: 1.1rem;
+  }
+
+  &__detail {
+    display: grid;
+    gap: 4px;
+  }
+
+  &__meta {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+  }
+}

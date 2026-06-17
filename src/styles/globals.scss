@@ -13,6 +13,10 @@
 @use "../components/SectionLabel/SectionLabel";
 @use "../components/PageHeader/PageHeader";
 @use "../components/SessionList/SessionList";
+@use "../components/RaceFacts/RaceFacts";
+@use "../components/RaceHistory/RaceHistory";
+@use "../components/WatchTargetList/WatchTargetList";
+@use "../components/RelatedRaceCard/RelatedRaceCard";
 @use "../app/home";
 @use "../app/public-pages";
 @use "../app/admin/admin";

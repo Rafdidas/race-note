@@ -14,7 +14,7 @@ export default async function AdminRaceDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ message?: string; status?: string }>;
+  searchParams: Promise<{ message?: string; status?: string; tab?: string }>;
 }) {
   const { id } = await params;
   const actionResult = await searchParams;

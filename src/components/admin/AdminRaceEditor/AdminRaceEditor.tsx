@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   addManualSession,
   applyAiDraft,
@@ -10,14 +11,29 @@ import {
 } from "@/app/admin/races/actions";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import { AdminActionButton } from "@/components/admin/AdminActionButton/AdminActionButton";
+import { RaceFactsForm } from "@/components/admin/RaceFactsForm/RaceFactsForm";
+import { RaceHistoryTable } from "@/components/admin/RaceHistoryTable/RaceHistoryTable";
 import { StatusBadge } from "@/components/admin/StatusBadge/StatusBadge";
+import { WatchTargetEditor } from "@/components/admin/WatchTargetEditor/WatchTargetEditor";
 import type { AdminRace } from "@/types/admin-data";
 
 type AdminRaceEditorProps = {
   race: AdminRace;
   message?: string;
   status?: string;
+  tab?: string;
 };
+
+const TABS = [
+  { id: "basic", label: "Basic" },
+  { id: "sessions", label: "Sessions" },
+  { id: "briefing", label: "Briefing" },
+  { id: "facts", label: "Facts" },
+  { id: "history", label: "History" },
+  { id: "watch", label: "Watch Targets" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
 
 const successMessages: Record<string, string> = {
   published: "레이스를 공개했습니다.",
@@ -28,13 +44,24 @@ const successMessages: Record<string, string> = {
   "ai-generated": "새 AI 초안을 생성했습니다. 현재 콘텐츠는 변경되지 않았습니다.",
   "ai-applied": "AI 초안을 현재 콘텐츠에 반영했습니다. 공개 전 검수가 필요합니다.",
   unpublished: "레이스를 비공개 초안으로 변경했습니다.",
+  "facts-saved": "Facts를 저장했습니다.",
+  "history-added": "역대 기록을 추가했습니다.",
+  "history-deleted": "역대 기록을 삭제했습니다.",
+  "watch-added": "주목 대상을 추가했습니다.",
+  "watch-deleted": "주목 대상을 삭제했습니다.",
+  "watch-moved": "주목 대상 순서를 변경했습니다.",
 };
 
 export function AdminRaceEditor({
   race,
   message,
   status,
+  tab,
 }: AdminRaceEditorProps) {
+  const activeTab: TabId = TABS.find((t) => t.id === tab)?.id ?? "basic";
+  const panelClass = (...tabs: TabId[]) =>
+    `admin-tab-panel${tabs.includes(activeTab) ? " admin-tab-panel--active" : ""}`;
+
   const saveAction = saveAdminRace.bind(null, race.id);
   const reviewAction = reviewAdminRace.bind(null, race.id);
   const publishAction = publishRace.bind(null, race.id);
@@ -86,8 +113,20 @@ export function AdminRaceEditor({
           "자동 수집된 데이터를 정정하고 검수한 뒤 공개 상태를 관리합니다."}
       </p>
 
+      <nav className="admin-tabs">
+        {TABS.map((t) => (
+          <Link
+            className={`admin-tabs__link${activeTab === t.id ? " admin-tabs__link--active" : ""}`}
+            href={`?tab=${t.id}`}
+            key={t.id}
+          >
+            {t.label}
+          </Link>
+        ))}
+      </nav>
+
       <form action={saveAction}>
-        <section className="admin-editor-section">
+        <section className={`admin-editor-section ${panelClass("basic")}`}>
           <div className="admin-editor-section__heading">
             <h2>Basic info</h2>
             <StatusBadge status={race.publishStatus} />
@@ -120,7 +159,7 @@ export function AdminRaceEditor({
           </div>
         </section>
 
-        <section className="admin-editor-section">
+        <section className={`admin-editor-section ${panelClass("sessions")}`}>
           <div className="admin-editor-section__heading">
             <h2>Sessions</h2>
             <span>{race.sessions.length} sessions</span>
@@ -180,7 +219,7 @@ export function AdminRaceEditor({
           </div>
         </section>
 
-        <section className="admin-editor-section">
+        <section className={`admin-editor-section ${panelClass("briefing")}`}>
           <div className="admin-editor-section__heading">
             <h2>Content</h2>
             <StatusBadge status={race.aiStatus} />
@@ -229,14 +268,14 @@ export function AdminRaceEditor({
           </div>
         </section>
 
-        <div className="admin-editor-actions">
+        <div className={`admin-editor-actions ${panelClass("basic", "sessions", "briefing")}`}>
           <button className="admin-button admin-button--primary" type="submit">
             Save corrections
           </button>
         </div>
       </form>
 
-      <section className="admin-editor-section admin-ai-draft">
+      <section className={`admin-editor-section admin-ai-draft ${panelClass("briefing")}`}>
         <div className="admin-editor-section__heading">
           <h2>AI draft</h2>
           <span>
@@ -305,7 +344,7 @@ export function AdminRaceEditor({
         )}
       </section>
 
-      <section className="admin-editor-section">
+      <section className={`admin-editor-section ${panelClass("sessions")}`}>
         <div className="admin-editor-section__heading">
           <h2>Manual sessions</h2>
           <span>Official calendars without exact times can be curated here.</span>
@@ -365,7 +404,31 @@ export function AdminRaceEditor({
         ) : null}
       </section>
 
-      <section className="admin-editor-section">
+      <section className={`admin-editor-section ${panelClass("facts")}`}>
+        <div className="admin-editor-section__heading">
+          <h2>Quick facts</h2>
+          <span>값이 있는 항목만 공개 화면에 표시됩니다.</span>
+        </div>
+        <RaceFactsForm facts={race.facts} raceId={race.id} />
+      </section>
+
+      <section className={`admin-editor-section ${panelClass("history")}`}>
+        <div className="admin-editor-section__heading">
+          <h2>History</h2>
+          <span>{race.history.length} entries</span>
+        </div>
+        <RaceHistoryTable entries={race.history} raceId={race.id} />
+      </section>
+
+      <section className={`admin-editor-section ${panelClass("watch")}`}>
+        <div className="admin-editor-section__heading">
+          <h2>Watch targets</h2>
+          <span>{race.watchTargets.length} targets</span>
+        </div>
+        <WatchTargetEditor raceId={race.id} targets={race.watchTargets} />
+      </section>
+
+      <section className={`admin-editor-section ${panelClass("basic")}`}>
         <div className="admin-editor-section__heading">
           <h2>Change logs</h2>
           <StatusBadge status={race.needsReview ? "needs-review" : "reviewed"} />

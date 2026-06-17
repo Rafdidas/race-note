@@ -1,5 +1,12 @@
 import type {
+  RaceFactsRow,
+  RaceHistoryRow,
+  RaceWatchTargetRow,
+} from "@/db/schema";
+import type {
   AdminRace,
+  AdminRaceFacts,
+  AdminRaceHistoryEntry,
   AdminRaceRow,
   AdminReviewQueueItem,
   AdminSession,
@@ -8,6 +15,7 @@ import type {
   AdminSyncLogRow,
   AdminSyncOverview,
   AdminSyncSourceRow,
+  AdminWatchTarget,
 } from "@/types/admin-data";
 import type { SeriesCode } from "@/types/public-data";
 
@@ -98,9 +106,66 @@ function mapAdminSession(session: AdminSessionRow): AdminSession {
   };
 }
 
+function str(value: string | number | null | undefined): string {
+  return value === null || value === undefined ? "" : String(value);
+}
+
+export function mapAdminRaceFacts(row: RaceFactsRow | undefined): AdminRaceFacts {
+  return {
+    circuitName: str(row?.circuitName),
+    trackLength: str(row?.trackLength),
+    laps: str(row?.laps),
+    raceDistance: str(row?.raceDistance),
+    corners: str(row?.corners),
+    drsZones: str(row?.drsZones),
+    firstHeld: str(row?.firstHeld),
+    previousWinner: str(row?.previousWinner),
+    mostWinsDriver: str(row?.mostWinsDriver),
+    mostWinsTeam: str(row?.mostWinsTeam),
+    lapRecord: str(row?.lapRecord),
+    poleRecord: str(row?.poleRecord),
+    tyreCompounds: str(row?.tyreCompounds),
+    overtakeDifficulty: str(row?.overtakeDifficulty),
+    keySector: str(row?.keySector),
+    weatherNote: str(row?.weatherNote),
+    strategyNote: str(row?.strategyNote),
+    beginnerNote: str(row?.beginnerNote),
+  };
+}
+
+export function mapAdminRaceHistory(rows: RaceHistoryRow[]): AdminRaceHistoryEntry[] {
+  return [...rows]
+    .sort((a, b) => b.season - a.season)
+    .map((row) => ({
+      id: row.id,
+      season: String(row.season),
+      winnerDriverName: str(row.winnerDriverName),
+      winnerTeamName: str(row.winnerTeamName),
+      poleDriverName: str(row.poleDriverName),
+      fastestLapDriverName: str(row.fastestLapDriverName),
+      note: str(row.note),
+    }));
+}
+
+export function mapAdminWatchTargets(rows: RaceWatchTargetRow[]): AdminWatchTarget[] {
+  return [...rows]
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .map((row) => ({
+      id: row.id,
+      targetType: row.targetType,
+      targetName: row.targetName,
+      title: str(row.title),
+      reason: row.reason,
+      displayOrder: row.displayOrder,
+    }));
+}
+
 export function mapAdminRace(
   race: AdminRaceRow,
   sessions: AdminSessionRow[],
+  factsRow?: RaceFactsRow,
+  historyRows: RaceHistoryRow[] = [],
+  watchRows: RaceWatchTargetRow[] = [],
 ): AdminRace {
   const relatedSessions = sessions
     .filter((session) => session.raceId === race.id)
@@ -149,6 +214,9 @@ export function mapAdminRace(
           }
         : null,
     sessions: relatedSessions,
+    facts: mapAdminRaceFacts(factsRow),
+    history: mapAdminRaceHistory(historyRows),
+    watchTargets: mapAdminWatchTargets(watchRows),
   };
 }
 

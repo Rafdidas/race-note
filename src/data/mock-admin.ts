@@ -1,4 +1,5 @@
 import { featuredRaces } from "@/data/mock-races";
+import { mapAdminRaceFacts } from "@/lib/admin-data-format";
 import type {
   AdminRace,
   AdminRecentLog,
@@ -29,6 +30,9 @@ export const adminRaces: AdminRace[] = featuredRaces.map((race, index) => ({
     mustWatch: Boolean(session.mustWatch),
     needsReview: false,
   })),
+  facts: mapAdminRaceFacts(undefined),
+  history: [],
+  watchTargets: [],
 }));
 
 export const syncSources: AdminSyncSource[] = [

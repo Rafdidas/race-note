@@ -3,7 +3,10 @@ import test from "node:test";
 import {
   buildAdminReviewQueue,
   mapAdminRace,
+  mapAdminRaceFacts,
+  mapAdminRaceHistory,
   mapAdminSyncOverview,
+  mapAdminWatchTargets,
 } from "./admin-data-format";
 import type {
   AdminRaceRow,
@@ -11,6 +14,7 @@ import type {
   AdminSyncLogRow,
   AdminSyncSourceRow,
 } from "../types/admin-data";
+import type { RaceFactsRow, RaceHistoryRow, RaceWatchTargetRow } from "../db/schema";
 
 const raceRow: AdminRaceRow = {
   id: "race-le-mans-2026",
@@ -106,6 +110,28 @@ test("maps an admin race row with D1 ID, normalized statuses, and KST sessions",
         needsReview: false,
       },
     ],
+    facts: {
+      circuitName: "",
+      trackLength: "",
+      laps: "",
+      raceDistance: "",
+      corners: "",
+      drsZones: "",
+      firstHeld: "",
+      previousWinner: "",
+      mostWinsDriver: "",
+      mostWinsTeam: "",
+      lapRecord: "",
+      poleRecord: "",
+      tyreCompounds: "",
+      overtakeDifficulty: "",
+      keySector: "",
+      weatherNote: "",
+      strategyNote: "",
+      beginnerNote: "",
+    },
+    history: [],
+    watchTargets: [],
   });
 });
 
@@ -203,4 +229,38 @@ test("maps sync sources with their latest log and formats KST timestamps", () =>
       },
     ],
   });
+});
+
+test("maps null facts row to empty-string admin facts", () => {
+  const facts = mapAdminRaceFacts(undefined);
+  assert.equal(facts.trackLength, "");
+  assert.equal(facts.laps, "");
+});
+
+test("maps facts row numbers to strings", () => {
+  const row = { laps: 53, corners: 18, trackLength: "5.807km" } as RaceFactsRow;
+  const facts = mapAdminRaceFacts(row);
+  assert.equal(facts.laps, "53");
+  assert.equal(facts.corners, "18");
+  assert.equal(facts.trackLength, "5.807km");
+});
+
+test("maps admin history sorted by season descending with string season", () => {
+  const rows: RaceHistoryRow[] = [
+    { id: "h1", raceId: "r", season: 2024, winnerDriverName: "A", winnerTeamName: null, poleDriverName: null, fastestLapDriverName: null, note: null, createdAt: "x", updatedAt: "x" },
+    { id: "h2", raceId: "r", season: 2025, winnerDriverName: "B", winnerTeamName: null, poleDriverName: null, fastestLapDriverName: null, note: null, createdAt: "x", updatedAt: "x" },
+  ];
+  const mapped = mapAdminRaceHistory(rows);
+  assert.deepEqual(mapped.map((h) => h.season), ["2025", "2024"]);
+  assert.equal(mapped[0].winnerDriverName, "B");
+});
+
+test("maps admin watch targets sorted by display order", () => {
+  const rows: RaceWatchTargetRow[] = [
+    { id: "w2", raceId: "r", targetType: "team", targetId: null, targetName: "B", title: null, reason: "r2", displayOrder: 2, createdAt: "x", updatedAt: "x" },
+    { id: "w1", raceId: "r", targetType: "driver", targetId: null, targetName: "A", title: "t", reason: "r1", displayOrder: 1, createdAt: "x", updatedAt: "x" },
+  ];
+  const mapped = mapAdminWatchTargets(rows);
+  assert.deepEqual(mapped.map((w) => w.targetName), ["A", "B"]);
+  assert.equal(mapped[0].title, "t");
 });

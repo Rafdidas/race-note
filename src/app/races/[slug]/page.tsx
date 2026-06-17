@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { RaceFacts } from "@/components/RaceFacts/RaceFacts";
+import { RaceHistory } from "@/components/RaceHistory/RaceHistory";
+import { RelatedRaceCard } from "@/components/RelatedRaceCard/RelatedRaceCard";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
 import { SessionList } from "@/components/SessionList/SessionList";
+import { WatchTargetList } from "@/components/WatchTargetList/WatchTargetList";
 import { getPublishedRaceBySlug } from "@/lib/public-data";
 
 export async function generateMetadata({
@@ -72,7 +76,46 @@ export default async function RaceDetailPage({
           <SectionLabel index="05">Variables</SectionLabel>
           <div>{race.variables.map((variable) => <span key={variable}>{variable}</span>)}</div>
         </section>
+
+        {race.facts && (
+          <section className="race-detail__facts">
+            <SectionLabel index="06">Quick facts</SectionLabel>
+            <RaceFacts facts={race.facts} />
+          </section>
+        )}
+
+        {race.watchTargets && race.watchTargets.length > 0 && (
+          <section className="race-detail__watch">
+            <SectionLabel index="07">Who to watch</SectionLabel>
+            <WatchTargetList targets={race.watchTargets} />
+          </section>
+        )}
+
+        {race.history && race.history.length > 0 && (
+          <section className="race-detail__history">
+            <SectionLabel index="08">History</SectionLabel>
+            <RaceHistory entries={race.history} />
+          </section>
+        )}
       </div>
+
+      {race.nextRace && (
+        <section className="race-detail__next container">
+          <SectionLabel index="09">Next race</SectionLabel>
+          <RelatedRaceCard race={race.nextRace} />
+        </section>
+      )}
+
+      {race.featuredOther && race.featuredOther.length > 0 && (
+        <section className="race-detail__explore container">
+          <SectionLabel index="10">Explore other series</SectionLabel>
+          <div className="race-detail__explore-grid">
+            {race.featuredOther.map((other) => (
+              <RelatedRaceCard key={other.slug} race={other} />
+            ))}
+          </div>
+        </section>
+      )}
     </article>
   );
 }

@@ -22,6 +22,56 @@ export type RacePreview = {
   brief: string[];
   beginnerNote: string;
   variables: string[];
+  facts?: RaceFacts | null;
+  history?: RaceHistoryEntry[];
+  watchTargets?: WatchTarget[];
+  nextRace?: RelatedRaceCard | null;
+  featuredOther?: RelatedRaceCard[];
+};
+
+export type RaceFacts = {
+  circuitName: string | null;
+  trackLength: string | null;
+  laps: number | null;
+  raceDistance: string | null;
+  corners: number | null;
+  drsZones: number | null;
+  firstHeld: number | null;
+  previousWinner: string | null;
+  mostWinsDriver: string | null;
+  mostWinsTeam: string | null;
+  lapRecord: string | null;
+  poleRecord: string | null;
+  tyreCompounds: string | null;
+  overtakeDifficulty: string | null;
+  keySector: string | null;
+  weatherNote: string | null;
+  strategyNote: string | null;
+  beginnerNote: string | null;
+};
+
+export type RaceHistoryEntry = {
+  season: number;
+  winnerDriverName: string | null;
+  winnerTeamName: string | null;
+  poleDriverName: string | null;
+  fastestLapDriverName: string | null;
+  note: string | null;
+};
+
+export type WatchTarget = {
+  targetType: "driver" | "team" | "manufacturer" | "car" | "manual";
+  targetName: string;
+  title: string | null;
+  reason: string;
+};
+
+export type RelatedRaceCard = {
+  slug: string;
+  series: SeriesCode;
+  title: string;
+  location: string;
+  period: string;
 };
 
 export type CalendarSession = RaceSession & {

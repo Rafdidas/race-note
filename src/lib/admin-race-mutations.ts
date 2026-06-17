@@ -75,6 +75,21 @@ function lines(formData: FormData, name: string): string[] {
     .filter(Boolean);
 }
 
+const watchTargetTypes = ["driver", "team", "manufacturer", "car", "manual"] as const;
+type WatchTargetType = (typeof watchTargetTypes)[number];
+
+function optionalNumber(formData: FormData, name: string): number | null {
+  const value = formData.get(name);
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return null;
+  }
+  const parsed = Number(value.trim());
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed)) {
+    throw new Error(`${name} must be an integer`);
+  }
+  return parsed;
+}
+
 export function parseAdminRaceForm(formData: FormData): AdminRaceMutationInput {
   const startDate = requiredString(formData, "startDate");
   const endDate = requiredString(formData, "endDate");
@@ -187,5 +202,94 @@ export function parseAdminSessionForm(formData: FormData): AdminSessionMutationI
     type: type as AdminSessionMutationInput["type"],
     startTimeUtc,
     isMustWatch: formData.get("mustWatch") === "on",
+  };
+}
+
+export type RaceFactsInput = {
+  circuitName: string | null;
+  trackLength: string | null;
+  laps: number | null;
+  raceDistance: string | null;
+  corners: number | null;
+  drsZones: number | null;
+  firstHeld: number | null;
+  previousWinner: string | null;
+  mostWinsDriver: string | null;
+  mostWinsTeam: string | null;
+  lapRecord: string | null;
+  poleRecord: string | null;
+  tyreCompounds: string | null;
+  overtakeDifficulty: string | null;
+  keySector: string | null;
+  weatherNote: string | null;
+  strategyNote: string | null;
+  beginnerNote: string | null;
+};
+
+export function parseRaceFactsForm(formData: FormData): RaceFactsInput {
+  return {
+    circuitName: optionalString(formData, "circuitName"),
+    trackLength: optionalString(formData, "trackLength"),
+    laps: optionalNumber(formData, "laps"),
+    raceDistance: optionalString(formData, "raceDistance"),
+    corners: optionalNumber(formData, "corners"),
+    drsZones: optionalNumber(formData, "drsZones"),
+    firstHeld: optionalNumber(formData, "firstHeld"),
+    previousWinner: optionalString(formData, "previousWinner"),
+    mostWinsDriver: optionalString(formData, "mostWinsDriver"),
+    mostWinsTeam: optionalString(formData, "mostWinsTeam"),
+    lapRecord: optionalString(formData, "lapRecord"),
+    poleRecord: optionalString(formData, "poleRecord"),
+    tyreCompounds: optionalString(formData, "tyreCompounds"),
+    overtakeDifficulty: optionalString(formData, "overtakeDifficulty"),
+    keySector: optionalString(formData, "keySector"),
+    weatherNote: optionalString(formData, "weatherNote"),
+    strategyNote: optionalString(formData, "strategyNote"),
+    beginnerNote: optionalString(formData, "beginnerNote"),
+  };
+}
+
+export type RaceHistoryInput = {
+  season: number;
+  winnerDriverName: string | null;
+  winnerTeamName: string | null;
+  poleDriverName: string | null;
+  fastestLapDriverName: string | null;
+  note: string | null;
+};
+
+export function parseRaceHistoryForm(formData: FormData): RaceHistoryInput {
+  const seasonRaw = requiredString(formData, "season");
+  const season = Number(seasonRaw);
+  if (!Number.isInteger(season) || season < 1900 || season > 2100) {
+    throw new Error("Invalid season");
+  }
+  return {
+    season,
+    winnerDriverName: optionalString(formData, "winnerDriverName"),
+    winnerTeamName: optionalString(formData, "winnerTeamName"),
+    poleDriverName: optionalString(formData, "poleDriverName"),
+    fastestLapDriverName: optionalString(formData, "fastestLapDriverName"),
+    note: optionalString(formData, "note"),
+  };
+}
+
+export type WatchTargetInput = {
+  targetType: WatchTargetType;
+  targetName: string;
+  title: string | null;
+  reason: string;
+};
+
+export function parseWatchTargetForm(formData: FormData): WatchTargetInput {
+  const targetType = requiredString(formData, "targetType");
+  if (!watchTargetTypes.includes(targetType as WatchTargetType)) {
+    throw new Error("Invalid target type");
+  }
+  return {
+    targetType: targetType as WatchTargetType,
+    targetName: requiredString(formData, "targetName"),
+    title: optionalString(formData, "title"),
+    reason: requiredString(formData, "reason"),
   };
 }

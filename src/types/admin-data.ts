@@ -47,6 +47,49 @@ export type AdminRace = {
   seoDescription: string;
   aiDraft: AdminAiDraft | null;
   sessions: AdminSession[];
+  facts: AdminRaceFacts;
+  history: AdminRaceHistoryEntry[];
+  watchTargets: AdminWatchTarget[];
+};
+
+export type AdminRaceFacts = {
+  circuitName: string;
+  trackLength: string;
+  laps: string;
+  raceDistance: string;
+  corners: string;
+  drsZones: string;
+  firstHeld: string;
+  previousWinner: string;
+  mostWinsDriver: string;
+  mostWinsTeam: string;
+  lapRecord: string;
+  poleRecord: string;
+  tyreCompounds: string;
+  overtakeDifficulty: string;
+  keySector: string;
+  weatherNote: string;
+  strategyNote: string;
+  beginnerNote: string;
+};
+
+export type AdminRaceHistoryEntry = {
+  id: string;
+  season: string;
+  winnerDriverName: string;
+  winnerTeamName: string;
+  poleDriverName: string;
+  fastestLapDriverName: string;
+  note: string;
+};
+
+export type AdminWatchTarget = {
+  id: string;
+  targetType: "driver" | "team" | "manufacturer" | "car" | "manual";
+  targetName: string;
+  title: string;
+  reason: string;
+  displayOrder: number;
 };
 
 export type AdminAiDraft = {
