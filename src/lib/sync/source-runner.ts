@@ -128,7 +128,8 @@ export async function runScheduleSource({
     return counts;
   } catch (error) {
     const finishedAt = new Date().toISOString();
-    const message = error instanceof Error ? error.message : "Unknown schedule sync error";
+    console.error(`[sync] ${source.seriesCode} schedule sync error:`, error);
+    const message = safeScheduleSyncError(error, source.seriesCode);
     await db.insert(syncLogs).values({
       id: logId,
       sourceId: source.id,
