@@ -89,7 +89,7 @@ export class OpenAiContentGenerator {
   ) {}
 
   async generate(context: RaceContentGenerationContext): Promise<AiContentFields> {
-    const response = await this.fetchImplementation("https://gateway.ai.cloudflare.com/v1/94170803d79901358ea300e1f74a6ee7/racenote/compat/chat/completions", {
+    const response = await this.fetchImplementation("https://gateway.ai.cloudflare.com/v1/94170803d79901358ea300e1f74a6ee7/racenote/openai/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
