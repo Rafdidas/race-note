@@ -59,24 +59,22 @@ function readOutputText(value: unknown): string {
   if (typeof value !== "object" || value === null) {
     throw new Error("OpenAI response is invalid");
   }
-  if ("output_text" in value && typeof value.output_text === "string") {
-    return value.output_text;
-  }
-  if (!("output" in value) || !Array.isArray(value.output)) {
-    throw new Error("OpenAI response is missing structured output");
-  }
-  for (const item of value.output) {
-    if (typeof item !== "object" || item === null || !("content" in item)) continue;
-    if (!Array.isArray(item.content)) continue;
-    for (const content of item.content) {
-      if (
-        typeof content === "object" &&
-        content !== null &&
-        "text" in content &&
-        typeof content.text === "string"
-      ) {
-        return content.text;
-      }
+  if (
+    "choices" in value &&
+    Array.isArray(value.choices) &&
+    value.choices.length > 0
+  ) {
+    const choice = value.choices[0];
+    if (
+      typeof choice === "object" &&
+      choice !== null &&
+      "message" in choice &&
+      typeof choice.message === "object" &&
+      choice.message !== null &&
+      "content" in choice.message &&
+      typeof choice.message.content === "string"
+    ) {
+      return choice.message.content;
     }
   }
   throw new Error("OpenAI response is missing structured output");
@@ -91,7 +89,7 @@ export class OpenAiContentGenerator {
   ) {}
 
   async generate(context: RaceContentGenerationContext): Promise<AiContentFields> {
-    const response = await this.fetchImplementation("https://api.openai.com/v1/responses", {
+    const response = await this.fetchImplementation("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
@@ -100,10 +98,8 @@ export class OpenAiContentGenerator {
       signal: AbortSignal.timeout(20_000),
       body: JSON.stringify({
         model: this.model,
-        tools: [],
-        max_output_tokens: 1200,
-        reasoning: { effort: "minimal" },
-        input: [
+        max_tokens: 1200,
+        messages: [
           {
             role: "system",
             content:
@@ -114,9 +110,9 @@ export class OpenAiContentGenerator {
             content: JSON.stringify(context),
           },
         ],
-        text: {
-          format: {
-            type: "json_schema",
+        response_format: {
+          type: "json_schema",
+          json_schema: {
             name: "racenote_content",
             strict: true,
             schema: responseSchema,
