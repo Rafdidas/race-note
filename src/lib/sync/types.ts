@@ -44,3 +44,18 @@ export type NormalizedStanding = {
   points: number;
   wins: number;
 };
+
+export type NormalizedRaceResult = {
+  sourceKey: string;
+  season: number;
+  round: number;
+  position: number;
+  driverId: string | null;
+  driverName: string;
+  teamId: string | null;
+  teamName: string | null;
+  gridPosition: number | null;
+  timeOrGap: string | null;
+  points: number;
+  status: string | null;
+};
