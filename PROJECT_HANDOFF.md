@@ -933,6 +933,50 @@ Formula1.com 참고 URL:
   수집, 시드 병합, 대시보드형 홈·드라이버·팀 D1 연동). 원격 D1 마이그레이션 적용은
   사용자 명시 요청 시에만.
 
+2026-06-30 Phase 1(F1 데이터 계층 + 대시보드 홈/드라이버/팀)을 완료했습니다.
+
+- D1 스키마에 `race_results`(레이스별 결과), `driver_standings`/`constructor_standings`
+  (시즌별 순위) 3개 테이블을 추가하고 `drizzle/migrations/0007_f1_results_standings.sql`을
+  작성했습니다. 마이그레이션 번호는 기존 최댓값이 `0006_race_detail.sql`이라 `0007`로
+  확정했습니다(설계 문서 초안의 0006 표기는 계획 작성 중 수정).
+- Jolpica(`api.jolpi.ca/ergast/f1`)에서 드라이버/컨스트럭터 순위와 최근 라운드 결과를
+  파싱하는 순수 함수(`src/lib/sync/f1-standings.ts`, `src/lib/sync/f1-results.ts`)와
+  D1 upsert 스토어(`src/lib/sync/standings-store.ts`, `src/lib/sync/results-store.ts`)를
+  추가했습니다. `runF1ScheduleSync`(`src/lib/sync/f1-sync.ts`)가 일정 수집 후 순위·결과를
+  이어서 수집하며, 일정 수집 실패는 그대로 전파하고 순위/결과 수집 실패는 격리해
+  `console.error`로만 남깁니다(부분 실패가 전체 sync를 막지 않음).
+- `src/data/f1-season.ts`의 22명 드라이버·11개 팀 전원에 실제 Jolpica id
+  (`jolpicaDriverId`/`jolpicaConstructorId`)를 채웠습니다. 2026 시즌 Jolpica 데이터로
+  직접 조회해 검증한 값입니다.
+- 시드(한국어 편집 콘텐츠)와 D1(자동 순위)을 병합하는 순수 함수
+  (`src/lib/f1-standings-merge.ts`)와 페이지용 조회 계층(`src/lib/f1-data.ts`:
+  `getDriverStandings`/`getConstructorStandings`)을 추가했습니다. D1 행이 있으면
+  position/points/wins는 D1 값을 쓰고, 없으면 시드 값으로 폴백합니다(시즌 초·수집 공백
+  대비). `next dev`는 D1 바인딩이 없는 기존 환경 제약으로 시드 전용 병합을 사용하고,
+  운영(Worker)은 D1 조회 후 병합하며 D1 조회 자체가 실패해도 시드로 폴백합니다.
+- `/f1/drivers`, `/f1/teams`, `/`(홈)을 정적 시드 직접 참조에서 위 조회 계층 사용으로
+  재배선했습니다. 세 라우트 모두 정적(`○`)에서 동적(`ƒ`) 렌더링으로 전환됐습니다.
+- 홈을 대시보드형으로 재구성했습니다. 데스크톱에서 다음 레이스·드라이버 순위·컨스트럭터
+  순위·최근 결과가 3열 패널 그리드로 한 화면에 보이고, 모바일은 1열로 쌓입니다. 기존에
+  팀 카드 목록이 두 번 렌더링되던 중복을 제거하고 하나로 통합했습니다. 일정/결과 데이터는
+  이번 단계에서 D1로 옮기지 않고 계속 시드를 사용합니다(다음 단계 범위).
+- `.env.example`에서 Phase 0에서 이미 제거된 `ADMIN_PASSWORD`/`ADMIN_SESSION_SECRET`/
+  `OPENAI_API_KEY` 항목을 정리했습니다(값 없는 템플릿이라 안전, 코드 참조 없음을 확인 후
+  삭제). `NAVER_SEARCH_CLIENT_ID`/`NAVER_SEARCH_CLIENT_SECRET`은 향후 뉴스 연동 단계용으로
+  유지합니다.
+- 검증: `node --import tsx --test src/lib/**/*.test.ts` 34개 통과, `npm run build`,
+  `npm run lint`, `npm run cf:build`, `npm run cf:types` 통과. `node:sqlite`로
+  `0000`~`0007` 마이그레이션을 메모리 DB에 순차 적용해 외래키 위반 0건, 테이블 16개
+  생성 확인(로컬에 `sqlite3` CLI가 없어 Node 내장 `node:sqlite`로 대체 검증). 홈 화면은
+  Claude Preview MCP로 라이트/다크, 데스크톱/모바일, 콘솔 오류 없음을 확인했습니다.
+- 원격 D1에는 `0007` 마이그레이션을 적용하지 않았습니다(사용자 명시 요청 시에만). 배포도
+  하지 않았습니다.
+- 다음 작업 경계: Phase 2(`/f1/drivers/[slug]`, `/f1/teams/[slug]`(머신 정보 포함),
+  `/f1/races/[slug]`(코스 정보·결과 포함) 상세 페이지, `src/lib/public-data.ts`/
+  `src/data/mock-races.ts`를 F1 기준으로 재작성하며 정리), Phase 3(네이버 뉴스 API
+  연동·`news_cache` 테이블·Cron 갱신·홈/상세 뉴스 섹션). 설계 기준은
+  `docs/superpowers/specs/2026-06-30-f1-auto-hub-pivot-design.md`.
+
 ## New Session Starter Prompt
 
 다른 컴퓨터의 새 Codex 스레드에서는 다음처럼 요청하면 됩니다.
