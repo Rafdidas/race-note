@@ -37,3 +37,10 @@ export type ScheduleChange = {
   newValue: ScheduleFieldValue;
   changeStatus: "needs_review" | "ignored";
 };
+
+export type NormalizedStanding = {
+  id: string;
+  position: number;
+  points: number;
+  wins: number;
+};
