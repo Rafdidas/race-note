@@ -1,69 +1,286 @@
+import Image from "next/image";
 import Link from "next/link";
-import { HomeRaceGrid } from "@/components/HomeRaceGrid/HomeRaceGrid";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
-import { getPublishedRaces } from "@/lib/public-data";
+import {
+  f1Drivers,
+  f1GuideSteps,
+  f1LatestResult,
+  f1NextRace,
+  f1SeasonSchedule,
+  f1Teams,
+} from "@/data/f1-season";
 
-export default async function Home() {
-  const races = await getPublishedRaces();
+const driverStandings = f1Drivers.filter((driver) => driver.position && driver.points);
+const constructorStandings = f1Teams.filter((team) => team.position && team.points);
+const driverNotes = f1Drivers.slice(1, 4);
+const completedRounds = f1SeasonSchedule.filter((round) => round.status === "done").length;
+const progress = Math.round((completedRounds / f1SeasonSchedule.length) * 100);
 
+export default function Home() {
   return (
     <div className="home">
-      <section className="home__hero">
+      <section className="home__dashboard">
         <div className="container">
-          <SectionLabel index="00">Motorsport weekly briefing</SectionLabel>
-          <h1 className="home__hero-title">Race Note</h1>
-          <div className="home__hero-bottom">
-            <p className="home__hero-copy type-korean">
-              이번 주 어떤 레이스를, 언제, 왜 봐야 하는지 짧고 정확하게 정리합니다.
-              모든 시간은 한국 표준시를 기준으로 표시합니다.
-            </p>
-            <div className="home__hero-period">
-              <span>Week 24</span>
-              <strong>2026.06.08 — 06.14</strong>
-            </div>
+          <div className="home__hero-grid" aria-label="F1 시즌 요약">
+            <article className="home__hero-main">
+              <h1 className="home__hero-title">2026<br />F1 Season</h1>
+              <p className="home__hero-copy type-korean">한국 시간 기준으로 정리한 F1 시즌 브리핑</p>
+              <div className="home__season-stats" aria-label="2026 F1 시즌 진행률">
+                <div>
+                  <span>라운드</span>
+                  <strong>{f1SeasonSchedule.length}</strong>
+                </div>
+                <div>
+                  <span>완료</span>
+                  <strong>{completedRounds}</strong>
+                </div>
+                <div>
+                  <span>남은 경기</span>
+                  <strong>{f1SeasonSchedule.length - completedRounds}</strong>
+                </div>
+                <div>
+                  <span>진행률</span>
+                  <strong>{progress}%</strong>
+                  <em style={{ inlineSize: `${progress}%` }} />
+                </div>
+              </div>
+            </article>
+
+            <aside className="home__next-card" aria-label="다음 레이스">
+              <div className="home__panel-head">
+                <SectionLabel index="01">다음 레이스</SectionLabel>
+                <SeriesBadge series="F1" />
+              </div>
+              <div className="home__next-card-title">
+                <div>
+                  <h2>{f1NextRace.title}</h2>
+                  <p className="type-korean">{f1NextRace.titleKo}</p>
+                </div>
+                <Image
+                  alt="오스트리아 국기"
+                  className="home__flag"
+                  height={32}
+                  src={f1NextRace.flagSrc}
+                  width={32}
+                />
+              </div>
+              <dl className="home__next-meta">
+                <div>
+                  <dt>라운드</dt>
+                  <dd>ROUND {f1NextRace.round}</dd>
+                </div>
+                <div>
+                  <dt>서킷</dt>
+                  <dd>{f1NextRace.circuit}</dd>
+                </div>
+                <div>
+                  <dt>장소</dt>
+                  <dd>{f1NextRace.location}</dd>
+                </div>
+              </dl>
+              <div className="home__race-date">
+                <strong>{f1NextRace.period}</strong>
+                <span>KST (한국 시간)</span>
+                <Image
+                  alt="Red Bull Ring 트랙 라인"
+                  height={88}
+                  src={f1NextRace.trackSrc}
+                  width={138}
+                />
+              </div>
+              <div className="home__session-strip" aria-label="오스트리아 그랑프리 세션 시간">
+                {f1NextRace.sessions.map((session) => (
+                  <div
+                    className={
+                      session.name === "RACE"
+                        ? "home__session-strip-item home__session-strip-item--race"
+                        : "home__session-strip-item"
+                    }
+                    key={session.name}
+                  >
+                    <span>{session.name}</span>
+                    <strong>{session.time}</strong>
+                  </div>
+                ))}
+              </div>
+            </aside>
           </div>
         </div>
       </section>
 
-      <section className="home__briefing container">
-        <SectionLabel index="01">Live briefing</SectionLabel>
-        <div className="home__briefing-grid">
-          <div className="home__next-session">
-            <div>
-              <SeriesBadge series="WEC" />
-              <h2>24 Hours of Le Mans</h2>
-            </div>
-            <div className="home__next-time">
-              06.13 · 23:00
-              <span>Race start · KST</span>
-            </div>
+      <section className="home__season-pulse container" aria-label="F1 시즌 요약">
+        <article className="home__standings" id="drivers">
+          <div className="home__panel-head">
+            <SectionLabel index="02">순위</SectionLabel>
+            <Link href="/f1/drivers">드라이버 보기</Link>
           </div>
-          <aside className="home__guide">
-            <SectionLabel index="N/01">Beginner note</SectionLabel>
-            <p className="type-korean">
-              F1, WEC, WRC는 무엇이 다를까요? 가장 먼저 보면 좋은 세션부터
-              알려드립니다.
-            </p>
-            <div className="home__guide-codes">
-              <span>F1</span><span>/</span><span>WEC</span><span>/</span><span>WRC</span>
+          <div className="home__podium" aria-label="드라이버 순위 상위 3명">
+            {driverStandings.slice(0, 3).map((driver) => (
+              <div className="home__podium-card" key={driver.name}>
+                <span>{driver.position}</span>
+                <strong>{driver.name}</strong>
+                <p>{driver.team}</p>
+                <small>{driver.points} PTS</small>
+              </div>
+            ))}
+          </div>
+          <div className="home__table" role="table" aria-label="드라이버 순위 요약">
+            <div className="home__table-row home__table-row--head" role="row">
+              <span>POS</span>
+              <span>DRIVER</span>
+              <span>TEAM</span>
+              <span>PTS</span>
             </div>
-            <Link className="home__guide-link" href="/series">
-              Open series guide ↗
-            </Link>
-          </aside>
-        </div>
+            {driverStandings.slice(0, 5).map((driver) => (
+              <div className="home__table-row" role="row" key={driver.name}>
+                <span>{driver.position}</span>
+                <strong>{driver.name} <em>{driver.code}</em></strong>
+                <span>{driver.team}</span>
+                <span>{driver.points}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="home__drivers">
+          <div className="home__panel-head">
+            <SectionLabel index="03">팀</SectionLabel>
+            <Link href="/f1/teams">팀 보기</Link>
+          </div>
+          <div className="home__team-list">
+            {constructorStandings.map((team) => (
+              <div className={`home__team-card home__team-card--${team.tone}`} key={team.name}>
+                <span>P/{team.position}</span>
+                <strong>{team.name}</strong>
+                <p>{team.drivers.join(" / ")}</p>
+                <small>{team.points} PTS</small>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
 
-      <section className="home__races container" id="this-week">
+      <section className="home__schedule container">
         <div className="home__section-heading">
           <div>
-            <SectionLabel index="02">This week races</SectionLabel>
-            <h2>On the grid</h2>
+            <SectionLabel index="04">시즌 일정</SectionLabel>
+            <h2>시즌 흐름</h2>
           </div>
-          <p>Curated briefings · KST</p>
+          <p className="type-korean">공식 2026 캘린더 기준으로 완료, 다음 경기, 예정 라운드를 구분합니다.</p>
         </div>
-        <HomeRaceGrid races={races} />
+        <div className="home__round-grid">
+          {f1SeasonSchedule.map((race) => (
+            <article className={`home__round-card home__round-card--${race.status}`} key={`${race.round}-${race.countryCode}`}>
+              <span>R{race.round}</span>
+              <strong>{race.countryCode}</strong>
+              <p className="type-korean">{race.grandPrixKo}</p>
+              <small>{race.period}</small>
+              <em>{race.status === "done" ? "완료" : race.status === "next" ? "진행 예정" : "예정"}</em>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="home__result container">
+        <div className="home__section-heading">
+          <div>
+            <SectionLabel index="05">최근 결과</SectionLabel>
+            <h2>최근 결과</h2>
+          </div>
+          <p>Barcelona-Catalunya Grand Prix · Race</p>
+        </div>
+        <div className="home__result-layout">
+          <div className="home__result-top">
+            {f1LatestResult.slice(0, 3).map((row) => (
+              <div key={row.driver}>
+                <span>{row.pos}</span>
+                <strong>{row.driver}</strong>
+                <p>{row.team}</p>
+              </div>
+            ))}
+          </div>
+          <div className="home__table home__table--result" role="table" aria-label="최근 경기 결과">
+            <div className="home__table-row home__table-row--head" role="row">
+              <span>POS</span>
+              <span>DRIVER</span>
+              <span>GAP</span>
+              <span>PTS</span>
+            </div>
+            {f1LatestResult.map((row) => (
+              <div className="home__table-row" role="row" key={row.driver}>
+                <span>{row.pos}</span>
+                <strong>{row.driver}</strong>
+                <span>{row.gap}</span>
+                <span>{row.points}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="home__explore container">
+        <article className="home__drivers" id="teams">
+          <div className="home__panel-head">
+            <SectionLabel index="06">팀</SectionLabel>
+            <Link href="/f1/teams">팀 보기</Link>
+          </div>
+          <div className="home__team-list">
+            {constructorStandings.map((team) => (
+              <div className={`home__team-card home__team-card--${team.tone}`} key={team.name}>
+                <span>P/{team.position}</span>
+                <strong>{team.name}</strong>
+                <p>{team.drivers.join(" / ")}</p>
+                <small>{team.points} PTS</small>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="home__drivers">
+          <div className="home__panel-head">
+            <SectionLabel index="07">드라이버</SectionLabel>
+            <Link href="/f1/drivers">드라이버 보기</Link>
+          </div>
+          <div className="home__driver-list">
+            {driverNotes.map((driver) => (
+              <div className="home__driver-card" key={driver.name}>
+                <span>#{driver.number}</span>
+                <strong>{driver.name}</strong>
+                <small>{driver.team}</small>
+                <p className="type-korean">{driver.note}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="home__guide-cta container" id="guide">
+        <div className="home__guide-cta-inner">
+          <div>
+            <SectionLabel index="08">입문 가이드</SectionLabel>
+            <h2>처음이라면 이 순서로 보면 쉽습니다</h2>
+            <p className="type-korean">
+              F1은 모든 세션을 다 알아야 재미있는 스포츠가 아닙니다. 예선, 출발,
+              피트스톱, 세이프티카, 마지막 10랩만 먼저 잡아도 경기 흐름이 보입니다.
+            </p>
+          </div>
+          <ol>
+            {f1GuideSteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="home__deferred container" aria-label="보류된 시리즈">
+        <div className="home__deferred-inner">
+          <span>WEC / WRC</span>
+          <p className="type-korean">
+            WEC와 WRC는 삭제하지 않습니다. F1 시즌 구조가 안정된 뒤 각 시리즈에 맞는
+            허브로 다시 확장합니다.
+          </p>
+        </div>
       </section>
     </div>
   );

@@ -33,15 +33,33 @@
 
   &__nav {
     display: flex;
-    gap: clamp(20px, 3vw, 46px);
+    gap: clamp(16px, 2.4vw, 40px);
 
     a {
       @include overline;
 
+      color: var(--color-text-muted);
+      position: relative;
       transition: color var(--transition-fast);
+
+      &::after {
+        background: var(--color-accent);
+        block-size: 3px;
+        content: "";
+        inline-size: 0;
+        inset-block-end: -22px;
+        inset-inline: 0;
+        margin-inline: auto;
+        position: absolute;
+        transition: inline-size var(--transition-fast);
+      }
 
       &:hover {
         color: var(--color-text);
+      }
+
+      &:hover::after {
+        inline-size: 100%;
       }
 
       &:focus-visible {
@@ -59,23 +77,25 @@
 
   &__location {
     @include overline;
+
+    color: var(--color-text-muted);
   }
 }
 
 @media (max-width: 700px) {
   .public-header {
     &__inner {
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto;
       gap: 14px;
       min-height: 60px;
     }
 
     &__nav {
-      gap: 16px;
-
-      a:first-child {
-        display: none;
-      }
+      gap: 12px;
+      grid-column: 1 / -1;
+      justify-content: space-between;
+      order: 3;
+      padding-bottom: 12px;
     }
 
     &__meta {

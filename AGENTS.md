@@ -15,8 +15,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 1. `PROJECT_HANDOFF.md`에서 완료 상태, 기술 결정, 배포 노트, 다음 작업 경계를
    확인합니다.
-2. 기능 요구사항은 `racenote_mvp_design.md`, 화면 요구사항은
-   `racenote_mvp_screen_design.md`를 확인합니다.
+2. 기능·화면 요구사항은 `racenote_f1_full_pivot_screen_design.md`를 확인합니다.
 3. 실행 및 배포 명령은 `README.md`와 `package.json`의 현재 내용을 기준으로
    확인합니다.
 4. `git status --short`로 사용자의 기존 변경사항을 확인하고 보존합니다.
@@ -28,20 +27,24 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## 2. 제품과 현재 작업 경계
 
-RaceNote는 F1, WEC, WRC 일정을 한국 시간으로 모아 보여주고, 입문자에게 중요한
-세션과 관전 포인트를 제공하는 모터스포츠 캘린더 서비스입니다.
+RaceNote는 F1 시즌을 한국어로 이해시키는 정보 허브입니다. 한국 시간 기준 다음
+경기, 시즌 일정, 최근 결과, 순위, 드라이버, 팀, 입문 가이드를 한 곳에서 제공합니다.
+WEC/WRC는 삭제가 아니라 F1 구조가 안정된 뒤 복귀할 보류 범위입니다.
 
-MVP 범위:
+현재 우선 범위:
 
-- 공개 홈, 통합 캘린더, 레이스 상세, 시리즈 소개
-- 관리자 로그인, 일정 검수, AI 문구 검수 및 공개
+- 공개 홈을 F1 Season Hub로 전면 교체
+- `/f1/drivers`, `/f1/drivers/[slug]`, `/f1/teams`, `/f1/teams/[slug]`,
+  `/f1/guide`, `/f1/races/[slug]` 공개 구조
+- F1 순위, 드라이버, 팀, 결과, 시즌 일정 데이터 기반 구축
+- 관리자 로그인, F1 시즌 데이터 관리, 일정·결과·순위·AI 문구 검수 및 공개
 - Cloudflare Cron 기반 일정 수집 및 AI 콘텐츠 생성
 - 이미지 없는 정보 중심 UI
 - 비회원 공개 서비스와 단일 관리자 운영
 
-현재 다음 작업 경계는 `PROJECT_HANDOFF.md`를 최종 기준으로 삼습니다. 완료된 공개
-화면이나 데이터 계층을 요청 없이 다시 목업으로 되돌리거나, MVP 제외 기능인 일반
-회원 기능을 추가하지 않습니다.
+현재 다음 작업 경계는 `PROJECT_HANDOFF.md`를 최종 기준으로 삼습니다. F1 중심 전면
+재설계를 진행하되, 이미 구현된 D1/관리자/수집/AI 계층은 가능한 한 재사용하고 요청
+없이 일반 회원 기능을 추가하지 않습니다.
 
 ## 3. 확정 기술 스택
 
@@ -143,9 +146,9 @@ DB 행을 그대로 UI에 전달하기보다 기존 공개 화면 모델 변환 
 
 ## 8. UI, SCSS, BEM 규칙
 
-RaceNote의 정보 구조와 화면 구성은 자체 설계서를 따릅니다. MCLN 레퍼런스는 색감,
-타이포그래피 분위기, 장식과 모션의 방향에만 사용하며 콘텐츠 구조, 로고, 이미지,
-유료 폰트를 복제하지 않습니다.
+RaceNote의 정보 구조와 화면 구성은 `racenote_f1_full_pivot_screen_design.md`를
+따릅니다. Formula1.com 레퍼런스는 메인, 스케줄, 결과, 드라이버, 팀, 가이드의 정보
+구조만 참고하며 공식 로고, 이미지, 콘텐츠, 레이아웃을 복제하지 않습니다.
 
 스타일 규칙:
 
@@ -221,7 +224,8 @@ SQLite 검증을 우선합니다.
 
 ## 12. 일정 수집과 AI 콘텐츠 규칙
 
-- 수집 소스와 반영 정책은 `racenote_mvp_design.md`를 기준으로 합니다.
+- 수집 소스와 반영 정책은 `PROJECT_HANDOFF.md`와
+  `racenote_f1_full_pivot_screen_design.md`를 기준으로 합니다.
 - 외부 소스 데이터는 형식 변경, 누락, 중복, 시간대 오류를 전제로 처리합니다.
 - 자동 수집 데이터와 관리자 수정 데이터를 구분하고 수동 수정값을 보호합니다.
 - 중복 실행되어도 결과가 망가지지 않는 idempotent 작업을 선호합니다.

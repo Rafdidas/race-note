@@ -7,15 +7,7 @@ import * as schema from "@/db/schema";
 declare global {
   interface CloudflareEnv {
     DB?: D1Database;
-    OPENAI_API_KEY?: string;
   }
-}
-
-export async function getOpenAiApiKey(): Promise<string> {
-  if (process.env.OPENAI_API_KEY) return process.env.OPENAI_API_KEY;
-  const { env } = await getCloudflareContext({ async: true });
-  if (!env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is missing");
-  return env.OPENAI_API_KEY;
 }
 
 export async function getDb() {

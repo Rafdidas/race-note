@@ -5,8 +5,6 @@ import { redirect } from "next/navigation";
 import {
   createAdminManualSession,
   deleteAdminManualSession,
-  applyAdminAiDraft,
-  generateAdminAiDraft,
   markAdminRaceReviewed,
   publishAdminRace,
   saveAdminRaceCorrection,
@@ -22,13 +20,11 @@ import {
 } from "@/lib/admin-race-detail-editor";
 import {
   parseAdminRaceForm,
-  parseAdminAiDraftForm,
   parseAdminSessionForm,
   parseRaceFactsForm,
   parseRaceHistoryForm,
   parseWatchTargetForm,
 } from "@/lib/admin-race-mutations";
-import { parseAiContentFields } from "@/lib/ai-content";
 
 function revalidateRace(raceId: string) {
   revalidatePath("/");
@@ -42,7 +38,7 @@ function editorRedirect(
   raceId: string,
   status:
     | "saved" | "reviewed" | "published" | "unpublished"
-    | "session-added" | "session-deleted" | "ai-generated" | "ai-applied"
+    | "session-added" | "session-deleted"
     | "facts-saved" | "history-added" | "history-deleted"
     | "watch-added" | "watch-deleted" | "watch-moved" | "error",
   message?: string,
@@ -52,29 +48,6 @@ function editorRedirect(
   if (message) params.set("message", message);
   if (tab) params.set("tab", tab);
   redirect(`/admin/races/${raceId}?${params}`);
-}
-
-export async function generateAiDraft(raceId: string, formData: FormData) {
-  try {
-    await generateAdminAiDraft(raceId, formData);
-    revalidateRace(raceId);
-  } catch {
-    editorRedirect(raceId, "error", "AI 초안을 생성하지 못했습니다. 기존 콘텐츠와 초안은 유지됩니다.");
-  }
-  editorRedirect(raceId, "ai-generated");
-}
-
-export async function applyAiDraft(raceId: string, formData: FormData) {
-  try {
-    await applyAdminAiDraft(
-      raceId,
-      parseAiContentFields(parseAdminAiDraftForm(formData)),
-    );
-    revalidateRace(raceId);
-  } catch {
-    editorRedirect(raceId, "error", "AI 초안을 반영하지 못했습니다.");
-  }
-  editorRedirect(raceId, "ai-applied");
 }
 
 export async function saveAdminRace(raceId: string, formData: FormData) {

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" role="img" aria-label="Flag of Austria">
+  <circle cx="36" cy="36" r="34" fill="#f7f7f7" stroke="#d7dbe0" stroke-width="4"/>
+  <clipPath id="a">
+    <circle cx="36" cy="36" r="30"/>
+  </clipPath>
+  <g clip-path="url(#a)">
+    <path fill="#c8102e" d="M6 6h60v20H6z"/>
+    <path fill="#fff" d="M6 26h60v20H6z"/>
+    <path fill="#c8102e" d="M6 46h60v20H6z"/>
+  </g>
+</svg>

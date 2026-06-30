@@ -2,9 +2,10 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle/ThemeToggle";
 
 const links = [
-  { href: "/#this-week", label: "This Week" },
-  { href: "/calendar", label: "Calendar" },
-  { href: "/series", label: "Series" },
+  { href: "/", label: "시즌" },
+  { href: "/f1/drivers", label: "드라이버" },
+  { href: "/f1/teams", label: "팀" },
+  { href: "/f1/guide", label: "가이드" },
 ];
 
 export function PublicHeader() {

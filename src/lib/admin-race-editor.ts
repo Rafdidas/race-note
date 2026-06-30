@@ -2,7 +2,6 @@ import "server-only";
 
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import {
-  aiContentDrafts,
   changeLogs,
   manualOverrides,
   raceContents,
@@ -12,16 +11,11 @@ import {
 import { requireAdminSession } from "@/lib/admin-auth";
 import {
   canPublishAdminRace,
-  parseAdminGenerationConfirmation,
   type AdminRaceMutationInput,
   type AdminSessionMutationInput,
 } from "@/lib/admin-race-mutations";
-import type { AiContentFields } from "@/lib/ai-content";
-import { generateRaceContentDraft } from "@/lib/ai/content-generation";
-import { OpenAiContentGenerator } from "@/lib/ai/openai-content-generator";
 import {
   getDb,
-  getOpenAiApiKey,
 } from "@/lib/db";
 import { runD1Batch, type D1BatchQuery } from "@/lib/d1-helpers";
 import { findChangedFields } from "@/lib/manual-overrides";
@@ -266,69 +260,6 @@ export async function unpublishAdminRace(raceId: string): Promise<void> {
     .update(races)
     .set({ publishStatus: "draft", updatedAt: new Date().toISOString() })
     .where(eq(races.id, raceId));
-}
-
-export async function generateAdminAiDraft(
-  raceId: string,
-  formData: FormData,
-): Promise<void> {
-  await requireAdminSession();
-  const db = await requireRace(raceId);
-  const contentRows = await db
-    .select({ aiStatus: raceContents.aiStatus })
-    .from(raceContents)
-    .where(eq(raceContents.raceId, raceId))
-    .limit(1);
-  parseAdminGenerationConfirmation(formData, contentRows[0]?.aiStatus ?? "empty");
-  const status = await generateRaceContentDraft(
-    db,
-    raceId,
-    new OpenAiContentGenerator(await getOpenAiApiKey()),
-  );
-  if (status === "failed") throw new Error("AI content generation failed");
-}
-
-export async function applyAdminAiDraft(
-  raceId: string,
-  content: AiContentFields,
-): Promise<void> {
-  await requireAdminSession();
-  const db = await requireRace(raceId);
-  const draftRows = await db
-    .select({ id: aiContentDrafts.id, summary: aiContentDrafts.summaryThreeLines })
-    .from(aiContentDrafts)
-    .where(eq(aiContentDrafts.raceId, raceId))
-    .limit(1);
-  if (!draftRows[0] || !draftRows[0].summary) throw new Error("AI draft not found");
-  const now = new Date().toISOString();
-  await runD1Batch(db, [
-    db
-      .insert(raceContents)
-      .values({
-        id: crypto.randomUUID(),
-        raceId,
-        ...content,
-        aiStatus: "needs_review",
-        aiGenerated: true,
-        reviewedByAdmin: false,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: raceContents.raceId,
-        set: {
-          ...content,
-          aiStatus: "needs_review",
-          aiGenerated: true,
-          reviewedByAdmin: false,
-          updatedAt: now,
-        },
-      }),
-    db
-      .update(aiContentDrafts)
-      .set({ ...content, status: "applied", updatedAt: now })
-      .where(eq(aiContentDrafts.raceId, raceId)),
-  ]);
 }
 
 export async function createAdminManualSession(
