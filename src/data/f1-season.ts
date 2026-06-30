@@ -9,6 +9,7 @@ export type F1Driver = {
   position?: string;
   note: string;
   style: string;
+  jolpicaDriverId: string;
 };
 
 export type F1Team = {
@@ -21,6 +22,7 @@ export type F1Team = {
   position?: string;
   tone: "silver" | "red" | "orange" | "blue" | "navy" | "green" | "white";
   note: string;
+  jolpicaConstructorId: string;
 };
 
 export type F1ResultRow = {
@@ -265,6 +267,7 @@ export const f1SeasonSchedule: F1SeasonRound[] = [
 export const f1Drivers: F1Driver[] = [
   {
     slug: "kimi-antonelli",
+    jolpicaDriverId: "antonelli",
     name: "Kimi Antonelli",
     code: "ANT",
     team: "Mercedes",
@@ -277,6 +280,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "lewis-hamilton",
+    jolpicaDriverId: "hamilton",
     name: "Lewis Hamilton",
     code: "HAM",
     team: "Ferrari",
@@ -289,6 +293,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "george-russell",
+    jolpicaDriverId: "russell",
     name: "George Russell",
     code: "RUS",
     team: "Mercedes",
@@ -301,6 +306,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "charles-leclerc",
+    jolpicaDriverId: "leclerc",
     name: "Charles Leclerc",
     code: "LEC",
     team: "Ferrari",
@@ -313,6 +319,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "lando-norris",
+    jolpicaDriverId: "norris",
     name: "Lando Norris",
     code: "NOR",
     team: "McLaren",
@@ -325,6 +332,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "oscar-piastri",
+    jolpicaDriverId: "piastri",
     name: "Oscar Piastri",
     code: "PIA",
     team: "McLaren",
@@ -336,6 +344,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "max-verstappen",
+    jolpicaDriverId: "max_verstappen",
     name: "Max Verstappen",
     code: "VER",
     team: "Red Bull Racing",
@@ -346,6 +355,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "isack-hadjar",
+    jolpicaDriverId: "hadjar",
     name: "Isack Hadjar",
     code: "HAD",
     team: "Red Bull Racing",
@@ -356,6 +366,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "pierre-gasly",
+    jolpicaDriverId: "gasly",
     name: "Pierre Gasly",
     code: "GAS",
     team: "Alpine",
@@ -366,6 +377,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "franco-colapinto",
+    jolpicaDriverId: "colapinto",
     name: "Franco Colapinto",
     code: "COL",
     team: "Alpine",
@@ -376,6 +388,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "liam-lawson",
+    jolpicaDriverId: "lawson",
     name: "Liam Lawson",
     code: "LAW",
     team: "Racing Bulls",
@@ -386,6 +399,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "arvid-lindblad",
+    jolpicaDriverId: "arvid_lindblad",
     name: "Arvid Lindblad",
     code: "LIN",
     team: "Racing Bulls",
@@ -396,6 +410,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "esteban-ocon",
+    jolpicaDriverId: "ocon",
     name: "Esteban Ocon",
     code: "OCO",
     team: "Haas F1 Team",
@@ -406,6 +421,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "oliver-bearman",
+    jolpicaDriverId: "bearman",
     name: "Oliver Bearman",
     code: "BEA",
     team: "Haas F1 Team",
@@ -416,6 +432,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "carlos-sainz",
+    jolpicaDriverId: "sainz",
     name: "Carlos Sainz",
     code: "SAI",
     team: "Williams",
@@ -426,6 +443,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "alexander-albon",
+    jolpicaDriverId: "albon",
     name: "Alexander Albon",
     code: "ALB",
     team: "Williams",
@@ -436,6 +454,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "nico-hulkenberg",
+    jolpicaDriverId: "hulkenberg",
     name: "Nico Hulkenberg",
     code: "HUL",
     team: "Audi",
@@ -446,6 +465,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "gabriel-bortoleto",
+    jolpicaDriverId: "bortoleto",
     name: "Gabriel Bortoleto",
     code: "BOR",
     team: "Audi",
@@ -456,6 +476,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "fernando-alonso",
+    jolpicaDriverId: "alonso",
     name: "Fernando Alonso",
     code: "ALO",
     team: "Aston Martin",
@@ -466,6 +487,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "lance-stroll",
+    jolpicaDriverId: "stroll",
     name: "Lance Stroll",
     code: "STR",
     team: "Aston Martin",
@@ -476,6 +498,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "sergio-perez",
+    jolpicaDriverId: "perez",
     name: "Sergio Perez",
     code: "PER",
     team: "Cadillac",
@@ -486,6 +509,7 @@ export const f1Drivers: F1Driver[] = [
   },
   {
     slug: "valtteri-bottas",
+    jolpicaDriverId: "bottas",
     name: "Valtteri Bottas",
     code: "BOT",
     team: "Cadillac",
@@ -499,6 +523,7 @@ export const f1Drivers: F1Driver[] = [
 export const f1Teams: F1Team[] = [
   {
     slug: "mercedes",
+    jolpicaConstructorId: "mercedes",
     name: "Mercedes",
     shortName: "Mercedes",
     drivers: ["George Russell", "Kimi Antonelli"],
@@ -510,6 +535,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "ferrari",
+    jolpicaConstructorId: "ferrari",
     name: "Ferrari",
     shortName: "Ferrari",
     drivers: ["Charles Leclerc", "Lewis Hamilton"],
@@ -521,6 +547,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "mclaren",
+    jolpicaConstructorId: "mclaren",
     name: "McLaren",
     shortName: "McLaren",
     drivers: ["Lando Norris", "Oscar Piastri"],
@@ -532,6 +559,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "red-bull-racing",
+    jolpicaConstructorId: "red_bull",
     name: "Red Bull Racing",
     shortName: "Red Bull",
     drivers: ["Max Verstappen", "Isack Hadjar"],
@@ -541,6 +569,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "alpine",
+    jolpicaConstructorId: "alpine",
     name: "Alpine",
     shortName: "Alpine",
     drivers: ["Pierre Gasly", "Franco Colapinto"],
@@ -550,6 +579,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "racing-bulls",
+    jolpicaConstructorId: "rb",
     name: "Racing Bulls",
     shortName: "Racing Bulls",
     drivers: ["Liam Lawson", "Arvid Lindblad"],
@@ -559,6 +589,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "haas",
+    jolpicaConstructorId: "haas",
     name: "Haas F1 Team",
     shortName: "Haas",
     drivers: ["Esteban Ocon", "Oliver Bearman"],
@@ -568,6 +599,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "williams",
+    jolpicaConstructorId: "williams",
     name: "Williams",
     shortName: "Williams",
     drivers: ["Carlos Sainz", "Alexander Albon"],
@@ -577,6 +609,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "audi",
+    jolpicaConstructorId: "audi",
     name: "Audi",
     shortName: "Audi",
     drivers: ["Nico Hulkenberg", "Gabriel Bortoleto"],
@@ -586,6 +619,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "aston-martin",
+    jolpicaConstructorId: "aston_martin",
     name: "Aston Martin",
     shortName: "Aston Martin",
     drivers: ["Fernando Alonso", "Lance Stroll"],
@@ -595,6 +629,7 @@ export const f1Teams: F1Team[] = [
   },
   {
     slug: "cadillac",
+    jolpicaConstructorId: "cadillac",
     name: "Cadillac",
     shortName: "Cadillac",
     drivers: ["Sergio Perez", "Valtteri Bottas"],
