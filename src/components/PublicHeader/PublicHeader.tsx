@@ -5,7 +5,6 @@ const links = [
   { href: "/", label: "시즌" },
   { href: "/f1/drivers", label: "드라이버" },
   { href: "/f1/teams", label: "팀" },
-  { href: "/f1/guide", label: "가이드" },
 ];
 
 export function PublicHeader() {
