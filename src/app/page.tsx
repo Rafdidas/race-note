@@ -2,22 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { SeriesBadge } from "@/components/SeriesBadge/SeriesBadge";
-import {
-  f1Drivers,
-  f1GuideSteps,
-  f1LatestResult,
-  f1NextRace,
-  f1SeasonSchedule,
-  f1Teams,
-} from "@/data/f1-season";
+import { f1GuideSteps, f1LatestResult, f1NextRace, f1SeasonSchedule } from "@/data/f1-season";
+import { getConstructorStandings, getDriverStandings } from "@/lib/f1-data";
 
-const driverStandings = f1Drivers.filter((driver) => driver.position && driver.points);
-const constructorStandings = f1Teams.filter((team) => team.position && team.points);
-const driverNotes = f1Drivers.slice(1, 4);
+const pad = (n: number) => String(n).padStart(2, "0");
 const completedRounds = f1SeasonSchedule.filter((round) => round.status === "done").length;
 const progress = Math.round((completedRounds / f1SeasonSchedule.length) * 100);
 
-export default function Home() {
+export default async function Home() {
+  const [drivers, teams] = await Promise.all([getDriverStandings(), getConstructorStandings()]);
+  const rankedDrivers = drivers.filter((driver) => driver.position < 9999);
+  const rankedTeams = teams.filter((team) => team.position < 9999);
+  const driverNotes = drivers.slice(0, 3);
+
   return (
     <div className="home">
       <section className="home__dashboard">
@@ -106,65 +103,97 @@ export default function Home() {
               </div>
             </aside>
           </div>
+
+          <div className="home__panel-grid" aria-label="순위 및 최근 결과 패널">
+            <article className="home__standings" id="drivers">
+              <div className="home__panel-head">
+                <SectionLabel index="02">드라이버 순위</SectionLabel>
+                <Link href="/f1/drivers">드라이버 보기</Link>
+              </div>
+              <div className="home__podium" aria-label="드라이버 순위 상위 3명">
+                {rankedDrivers.slice(0, 3).map((driver) => (
+                  <div className="home__podium-card" key={driver.slug}>
+                    <span>{pad(driver.position)}</span>
+                    <strong>{driver.name}</strong>
+                    <p>{driver.team}</p>
+                    <small>{driver.points} PTS</small>
+                  </div>
+                ))}
+              </div>
+              <div className="home__table" role="table" aria-label="드라이버 순위 요약">
+                <div className="home__table-row home__table-row--head" role="row">
+                  <span>POS</span>
+                  <span>DRIVER</span>
+                  <span>TEAM</span>
+                  <span>PTS</span>
+                </div>
+                {rankedDrivers.slice(0, 5).map((driver) => (
+                  <div className="home__table-row" role="row" key={driver.slug}>
+                    <span>{pad(driver.position)}</span>
+                    <strong>{driver.name} <em>{driver.code}</em></strong>
+                    <span>{driver.team}</span>
+                    <span>{driver.points}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <article className="home__standings home__standings--teams" id="teams">
+              <div className="home__panel-head">
+                <SectionLabel index="03">컨스트럭터 순위</SectionLabel>
+                <Link href="/f1/teams">팀 보기</Link>
+              </div>
+              <div className="home__team-list home__team-list--compact">
+                {rankedTeams.map((team) => (
+                  <div className={`home__team-card home__team-card--${team.tone}`} key={team.slug}>
+                    <span>P/{pad(team.position)}</span>
+                    <strong>{team.name}</strong>
+                    <p>{team.drivers.join(" / ")}</p>
+                    <small>{team.points} PTS</small>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <article className="home__result">
+              <div className="home__panel-head">
+                <SectionLabel index="04">최근 결과</SectionLabel>
+                <span className="home__panel-head-meta">Barcelona-Catalunya GP · Race</span>
+              </div>
+              <div className="home__result-top">
+                {f1LatestResult.slice(0, 3).map((row) => (
+                  <div key={row.driver}>
+                    <span>{row.pos}</span>
+                    <strong>{row.driver}</strong>
+                    <p>{row.team}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="home__table home__table--result" role="table" aria-label="최근 경기 결과">
+                <div className="home__table-row home__table-row--head" role="row">
+                  <span>POS</span>
+                  <span>DRIVER</span>
+                  <span>GAP</span>
+                  <span>PTS</span>
+                </div>
+                {f1LatestResult.map((row) => (
+                  <div className="home__table-row" role="row" key={row.driver}>
+                    <span>{row.pos}</span>
+                    <strong>{row.driver}</strong>
+                    <span>{row.gap}</span>
+                    <span>{row.points}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </div>
         </div>
-      </section>
-
-      <section className="home__season-pulse container" aria-label="F1 시즌 요약">
-        <article className="home__standings" id="drivers">
-          <div className="home__panel-head">
-            <SectionLabel index="02">순위</SectionLabel>
-            <Link href="/f1/drivers">드라이버 보기</Link>
-          </div>
-          <div className="home__podium" aria-label="드라이버 순위 상위 3명">
-            {driverStandings.slice(0, 3).map((driver) => (
-              <div className="home__podium-card" key={driver.name}>
-                <span>{driver.position}</span>
-                <strong>{driver.name}</strong>
-                <p>{driver.team}</p>
-                <small>{driver.points} PTS</small>
-              </div>
-            ))}
-          </div>
-          <div className="home__table" role="table" aria-label="드라이버 순위 요약">
-            <div className="home__table-row home__table-row--head" role="row">
-              <span>POS</span>
-              <span>DRIVER</span>
-              <span>TEAM</span>
-              <span>PTS</span>
-            </div>
-            {driverStandings.slice(0, 5).map((driver) => (
-              <div className="home__table-row" role="row" key={driver.name}>
-                <span>{driver.position}</span>
-                <strong>{driver.name} <em>{driver.code}</em></strong>
-                <span>{driver.team}</span>
-                <span>{driver.points}</span>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="home__drivers">
-          <div className="home__panel-head">
-            <SectionLabel index="03">팀</SectionLabel>
-            <Link href="/f1/teams">팀 보기</Link>
-          </div>
-          <div className="home__team-list">
-            {constructorStandings.map((team) => (
-              <div className={`home__team-card home__team-card--${team.tone}`} key={team.name}>
-                <span>P/{team.position}</span>
-                <strong>{team.name}</strong>
-                <p>{team.drivers.join(" / ")}</p>
-                <small>{team.points} PTS</small>
-              </div>
-            ))}
-          </div>
-        </article>
       </section>
 
       <section className="home__schedule container">
         <div className="home__section-heading">
           <div>
-            <SectionLabel index="04">시즌 일정</SectionLabel>
+            <SectionLabel index="05">시즌 일정</SectionLabel>
             <h2>시즌 흐름</h2>
           </div>
           <p className="type-korean">공식 2026 캘린더 기준으로 완료, 다음 경기, 예정 라운드를 구분합니다.</p>
@@ -182,69 +211,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="home__result container">
-        <div className="home__section-heading">
-          <div>
-            <SectionLabel index="05">최근 결과</SectionLabel>
-            <h2>최근 결과</h2>
-          </div>
-          <p>Barcelona-Catalunya Grand Prix · Race</p>
-        </div>
-        <div className="home__result-layout">
-          <div className="home__result-top">
-            {f1LatestResult.slice(0, 3).map((row) => (
-              <div key={row.driver}>
-                <span>{row.pos}</span>
-                <strong>{row.driver}</strong>
-                <p>{row.team}</p>
-              </div>
-            ))}
-          </div>
-          <div className="home__table home__table--result" role="table" aria-label="최근 경기 결과">
-            <div className="home__table-row home__table-row--head" role="row">
-              <span>POS</span>
-              <span>DRIVER</span>
-              <span>GAP</span>
-              <span>PTS</span>
-            </div>
-            {f1LatestResult.map((row) => (
-              <div className="home__table-row" role="row" key={row.driver}>
-                <span>{row.pos}</span>
-                <strong>{row.driver}</strong>
-                <span>{row.gap}</span>
-                <span>{row.points}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="home__explore container">
-        <article className="home__drivers" id="teams">
-          <div className="home__panel-head">
-            <SectionLabel index="06">팀</SectionLabel>
-            <Link href="/f1/teams">팀 보기</Link>
-          </div>
-          <div className="home__team-list">
-            {constructorStandings.map((team) => (
-              <div className={`home__team-card home__team-card--${team.tone}`} key={team.name}>
-                <span>P/{team.position}</span>
-                <strong>{team.name}</strong>
-                <p>{team.drivers.join(" / ")}</p>
-                <small>{team.points} PTS</small>
-              </div>
-            ))}
-          </div>
-        </article>
-
         <article className="home__drivers">
           <div className="home__panel-head">
-            <SectionLabel index="07">드라이버</SectionLabel>
+            <SectionLabel index="06">드라이버</SectionLabel>
             <Link href="/f1/drivers">드라이버 보기</Link>
           </div>
           <div className="home__driver-list">
             {driverNotes.map((driver) => (
-              <div className="home__driver-card" key={driver.name}>
+              <div className="home__driver-card" key={driver.slug}>
                 <span>#{driver.number}</span>
                 <strong>{driver.name}</strong>
                 <small>{driver.team}</small>
@@ -258,7 +233,7 @@ export default function Home() {
       <section className="home__guide-cta container" id="guide">
         <div className="home__guide-cta-inner">
           <div>
-            <SectionLabel index="08">입문 가이드</SectionLabel>
+            <SectionLabel index="07">입문 가이드</SectionLabel>
             <h2>처음이라면 이 순서로 보면 쉽습니다</h2>
             <p className="type-korean">
               F1은 모든 세션을 다 알아야 재미있는 스포츠가 아닙니다. 예선, 출발,

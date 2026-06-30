@@ -20,8 +20,8 @@
   &__next-card,
   &__standings,
   &__drivers,
-  &__schedule,
   &__result,
+  &__schedule,
   &__guide-cta-inner,
   &__deferred-inner {
     background:
@@ -237,16 +237,23 @@
     }
   }
 
-  &__season-pulse {
+  &__panel-grid {
+    align-items: start;
     display: grid;
     gap: 20px;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.82fr);
-    padding-top: 20px;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+    margin-top: 20px;
   }
 
   &__standings,
-  &__drivers {
-    padding: clamp(22px, 3vw, 38px);
+  &__drivers,
+  &__result {
+    padding: clamp(20px, 2.6vw, 30px);
+  }
+
+  &__standings--teams {
+    display: flex;
+    flex-direction: column;
   }
 
   &__panel-head {
@@ -264,6 +271,13 @@
         color: var(--color-text);
       }
     }
+  }
+
+  &__panel-head-meta {
+    @include overline;
+
+    color: var(--color-text-muted);
+    text-align: right;
   }
 
   &__next-race-body {
@@ -341,9 +355,9 @@
 
   &__podium {
     display: grid;
-    gap: 12px;
-    grid-template-columns: 1.2fr 1fr 1fr;
-    margin-top: 28px;
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 22px;
   }
 
   &__podium-card {
@@ -351,17 +365,17 @@
     border: 1px solid var(--color-line);
     border-top: 4px solid var(--color-f1);
     border-radius: 4px;
-    min-height: 150px;
-    padding: 18px;
+    min-height: 124px;
+    padding: 14px;
 
     span {
       color: var(--color-accent);
       display: block;
-      font-size: clamp(2.2rem, 4vw, 4rem);
+      font-size: clamp(1.8rem, 2.6vw, 2.6rem);
       font-weight: 650;
       letter-spacing: -0.08em;
       line-height: 0.8;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
     strong {
@@ -428,7 +442,6 @@
   }
 
   &__schedule,
-  &__result,
   &__guide-cta,
   &__deferred {
     margin-top: 20px;
@@ -526,63 +539,52 @@
     }
   }
 
-  &__result-layout {
-    display: grid;
-    gap: 0;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
-  }
-
   &__result-top {
     background: var(--color-text);
+    border-radius: 4px;
     color: var(--color-canvas);
     display: grid;
+    gap: 1px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 22px;
+    overflow: hidden;
 
     div {
-      border-right: 1px solid color-mix(in srgb, var(--color-canvas) 24%, transparent);
-      min-height: 260px;
-      padding: clamp(20px, 3vw, 34px);
-
-      &:last-child {
-        border-right: 0;
-      }
+      background: var(--color-text);
+      min-height: 0;
+      padding: 14px;
     }
 
     span {
       color: var(--color-accent);
       display: block;
-      font-size: clamp(2.8rem, 5vw, 5rem);
+      font-size: clamp(1.6rem, 2.4vw, 2.2rem);
       font-weight: 650;
       letter-spacing: -0.08em;
       line-height: 0.8;
-      margin-bottom: 72px;
+      margin-bottom: 16px;
     }
 
     strong {
       display: block;
-      font-size: clamp(1rem, 1.6vw, 1.45rem);
+      font-size: 0.84rem;
       font-weight: 560;
-      letter-spacing: -0.05em;
-      line-height: 1.05;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
 
     p {
       color: color-mix(in srgb, var(--color-canvas) 72%, transparent);
-      font-size: 0.78rem;
-      margin: 10px 0 0;
+      font-size: 0.7rem;
+      margin: 6px 0 0;
     }
   }
 
   &__table--result {
-    background: var(--color-surface);
-    margin-top: 0;
-    padding-inline: clamp(18px, 3vw, 30px);
+    margin-top: 16px;
   }
 
   &__explore {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-top: 20px;
   }
 
@@ -591,6 +593,20 @@
     display: grid;
     gap: 14px;
     margin-top: 28px;
+  }
+
+  &__team-list--compact {
+    margin-top: 22px;
+
+    .home__team-card {
+      gap: 6px;
+      min-height: 0;
+      padding: 14px;
+
+      strong {
+        font-size: 1.05rem;
+      }
+    }
   }
 
   &__team-card,
@@ -728,10 +744,12 @@
 
 @media (max-width: 1100px) {
   .home {
-    &__season-pulse,
-    &__result-layout,
-    &__explore {
-      grid-template-columns: 1fr;
+    &__panel-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__result {
+      grid-column: 1 / -1;
     }
 
     &__hero-grid {
@@ -747,9 +765,14 @@
 @media (max-width: 760px) {
   .home {
     &__hero-grid,
+    &__panel-grid,
     &__guide-cta-inner,
     &__deferred-inner {
       grid-template-columns: 1fr;
+    }
+
+    &__result {
+      grid-column: auto;
     }
 
     &__hero-title {
@@ -821,14 +844,14 @@
     }
 
     &__result-top {
+      grid-template-columns: 1fr;
+
       div {
-        border-bottom: 1px solid color-mix(in srgb, var(--color-canvas) 24%, transparent);
-        border-right: 0;
-        min-height: 160px;
+        padding: 16px;
       }
 
       span {
-        margin-bottom: 42px;
+        margin-bottom: 10px;
       }
     }
   }
