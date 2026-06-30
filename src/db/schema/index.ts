@@ -309,6 +309,68 @@ export const adminSessions = sqliteTable(
   (table) => [index("admin_sessions_expires_at_idx").on(table.expiresAt)],
 );
 
+export const raceResults = sqliteTable(
+  "race_results",
+  {
+    id: text("id").primaryKey(),
+    raceId: text("race_id")
+      .notNull()
+      .references(() => races.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    season: integer("season").notNull(),
+    sessionType: text("session_type").notNull().default("race"),
+    position: integer("position").notNull(),
+    driverId: text("driver_id"),
+    driverName: text("driver_name").notNull(),
+    teamId: text("team_id"),
+    teamName: text("team_name"),
+    gridPosition: integer("grid_position"),
+    timeOrGap: text("time_or_gap"),
+    points: integer("points").notNull().default(0),
+    status: text("status"),
+    sourceKey: text("source_key").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("race_results_race_idx").on(table.raceId, table.sessionType, table.position),
+    uniqueIndex("race_results_source_key_idx").on(table.sourceKey),
+  ],
+);
+
+export const driverStandings = sqliteTable(
+  "driver_standings",
+  {
+    id: text("id").primaryKey(),
+    season: integer("season").notNull(),
+    driverId: text("driver_id").notNull(),
+    position: integer("position").notNull(),
+    points: integer("points").notNull().default(0),
+    wins: integer("wins").notNull().default(0),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("driver_standings_season_driver_idx").on(table.season, table.driverId),
+    index("driver_standings_position_idx").on(table.season, table.position),
+  ],
+);
+
+export const constructorStandings = sqliteTable(
+  "constructor_standings",
+  {
+    id: text("id").primaryKey(),
+    season: integer("season").notNull(),
+    constructorId: text("constructor_id").notNull(),
+    position: integer("position").notNull(),
+    points: integer("points").notNull().default(0),
+    wins: integer("wins").notNull().default(0),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("constructor_standings_season_idx").on(table.season, table.constructorId),
+    index("constructor_standings_position_idx").on(table.season, table.position),
+  ],
+);
+
 export type Series = typeof series.$inferSelect;
 export type NewSeries = typeof series.$inferInsert;
 export type Race = typeof races.$inferSelect;
@@ -327,3 +389,9 @@ export type RaceHistoryRow = typeof raceHistory.$inferSelect;
 export type NewRaceHistoryRow = typeof raceHistory.$inferInsert;
 export type RaceWatchTargetRow = typeof raceWatchTargets.$inferSelect;
 export type NewRaceWatchTargetRow = typeof raceWatchTargets.$inferInsert;
+export type RaceResultRow = typeof raceResults.$inferSelect;
+export type NewRaceResultRow = typeof raceResults.$inferInsert;
+export type DriverStandingRow = typeof driverStandings.$inferSelect;
+export type NewDriverStandingRow = typeof driverStandings.$inferInsert;
+export type ConstructorStandingRow = typeof constructorStandings.$inferSelect;
+export type NewConstructorStandingRow = typeof constructorStandings.$inferInsert;
