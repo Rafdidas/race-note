@@ -338,7 +338,7 @@ git commit -m "docs: record Phase 0 legacy removal in handoff"
 ## 파일 구조 (Phase 1 신규/수정)
 
 - `src/db/schema/index.ts` — `raceResults`, `driverStandings`, `constructorStandings` 테이블 추가
-- `drizzle/migrations/0006_f1_results_standings.sql` — 대응 마이그레이션(번호는 기존 최댓값+1로 확정)
+- `drizzle/migrations/0007_f1_results_standings.sql` — 대응 마이그레이션(번호는 기존 최댓값+1로 확정)
 - `src/lib/sync/types.ts` — `NormalizedRaceResult`, `NormalizedStanding` 타입 추가
 - `src/lib/sync/f1-results.ts` — Jolpica 결과 파서(순수 함수) + 테스트
 - `src/lib/sync/f1-standings.ts` — Jolpica 순위 파서(순수 함수) + 테스트
@@ -355,7 +355,7 @@ git commit -m "docs: record Phase 0 legacy removal in handoff"
 
 **Files:**
 - Modify: `src/db/schema/index.ts`
-- Create: `drizzle/migrations/0006_f1_results_standings.sql`
+- Create: `drizzle/migrations/0007_f1_results_standings.sql`
 
 **Interfaces:**
 - Produces: `raceResults`, `driverStandings`, `constructorStandings` 테이블과 `$inferInsert`/`$inferSelect` 타입.
@@ -363,7 +363,7 @@ git commit -m "docs: record Phase 0 legacy removal in handoff"
 - [ ] **Step 1: 마이그레이션 번호 확정**
 
 Run: `ls drizzle/migrations`
-Expected: 최댓값 확인(핸드오프 기준 `0005`). 새 파일은 `0006_f1_results_standings.sql`. 이미 0006이 있으면 다음 번호로.
+Expected: 최댓값은 `0006_race_detail.sql`(이미 존재). 새 파일은 `0007_f1_results_standings.sql`. 만약 0007이 이미 있으면 다음 번호로.
 
 - [ ] **Step 2: 스키마 테이블 추가**
 
@@ -446,7 +446,7 @@ export type NewConstructorStandingRow = typeof constructorStandings.$inferInsert
 
 - [ ] **Step 3: 마이그레이션 SQL 작성**
 
-`drizzle/migrations/0006_f1_results_standings.sql`:
+`drizzle/migrations/0007_f1_results_standings.sql`:
 
 ```sql
 CREATE TABLE `race_results` (
@@ -504,7 +504,7 @@ CREATE INDEX `constructor_standings_position_idx` ON `constructor_standings` (`s
 
 - [ ] **Step 4: 메모리 SQLite로 마이그레이션 검증**
 
-Run: `sqlite3 :memory: ".read drizzle/migrations/0000_initial.sql" ".read drizzle/migrations/0006_f1_results_standings.sql" "PRAGMA foreign_key_check;"`
+Run: `sqlite3 :memory: ".read drizzle/migrations/0000_initial.sql" ".read drizzle/migrations/0007_f1_results_standings.sql" "PRAGMA foreign_key_check;"`
 Expected: 오류 출력 없음. (중간 마이그레이션이 테이블 의존성에 필요하면 0000~0006을 순서대로 `.read` 한다.)
 
 - [ ] **Step 5: 빌드 확인**
@@ -515,7 +515,7 @@ Expected: 성공(타입 export 정상).
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/db/schema/index.ts drizzle/migrations/0006_f1_results_standings.sql
+git add src/db/schema/index.ts drizzle/migrations/0007_f1_results_standings.sql
 git commit -m "feat: add F1 race_results and standings tables"
 ```
 
@@ -1662,7 +1662,7 @@ Run: `npm run cf:types` → 성공.
 
 - [ ] **Step 3: 메모리 SQLite 마이그레이션 재검증**
 
-Run: `sqlite3 :memory: ".read drizzle/migrations/0000_initial.sql" ".read drizzle/migrations/0006_f1_results_standings.sql" "PRAGMA foreign_key_check;"`
+Run: `sqlite3 :memory: ".read drizzle/migrations/0000_initial.sql" ".read drizzle/migrations/0007_f1_results_standings.sql" "PRAGMA foreign_key_check;"`
 Expected: 오류 없음.(필요 시 0000~0006 순차 `.read`.)
 
 - [ ] **Step 4: 핸드오프 기록**

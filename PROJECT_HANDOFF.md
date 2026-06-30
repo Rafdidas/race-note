@@ -901,6 +901,38 @@ Formula1.com 참고 URL:
   1365px와 모바일 390px에서 국기/트랙 SVG 로드, 한글 Pretendard computed font,
   콘솔 오류 없음, 모바일 가로 오버플로 없음 확인.
 
+2026-06-30 F1 전자동 정보 허브로 제품 방향을 재확정하고 Phase 0(레거시 제거)을 완료했습니다.
+
+- 새 제품 방향: **관리자 없는 F1 전자동 정보 허브**. 변동 데이터(일정·결과·순위·뉴스)는
+  자동 수집(Jolpica + 네이버 뉴스) → D1 + Cron, 편집 콘텐츠(드라이버·팀·머신·코스 한국어
+  설명)는 코드 시드(`src/data/f1-season.ts`). 검수 단계 없음. 가이드와 AI(OpenAI) 기능은
+  정보 MVP 이후로 보류. WEC/WRC도 보류.
+- 기준 문서: 설계 `docs/superpowers/specs/2026-06-30-f1-auto-hub-pivot-design.md`,
+  계획 `docs/superpowers/plans/2026-06-30-f1-auto-hub-phase0-1.md`. 화면/IA 참고는
+  `racenote_f1_full_pivot_screen_design.md`를 계속 사용.
+- Phase 0 제거 완료(모두 git 이력으로 복구 가능):
+  - 루트 MVP 설계 문서 3종 삭제 확정(`racenote_mvp_design.md` 등).
+  - OpenAI AI 생성 계층 제거(`src/lib/ai/*`, `ai-content*`, `openai-content-generator*`,
+    worker의 `0 1 * * *` AI Cron 분기와 트리거, `db.ts`의 `getOpenAiApiKey`/`OPENAI_API_KEY`).
+  - WEC/WRC 일정 수집 제거(`wec-*`/`wrc-*`/`calendar-dates.ts`). `runAllScheduleSync`는 F1 전용.
+  - 관리자 전면 제거(`src/app/admin`, `src/components/admin`, `src/lib/admin-*`,
+    `src/data/mock-admin.ts`, `globals.scss`의 admin SCSS `@use`).
+  - 캘린더/시리즈/구 레이스 라우트 제거(`src/app/calendar|series|races`),
+    `CalendarSchedule`/`HomeRaceGrid` 컴포넌트 제거, 헤더 네비를 `시즌 / 드라이버 / 팀`으로 축소.
+- 남은 공개 라우트: `/`, `/f1/drivers`, `/f1/guide`, `/f1/teams`. Cron 트리거는
+  `0 0 * * *`, `0 12 * * *` 2종.
+- 의도적 보존(아직 삭제 안 함): `src/lib/public-data.ts`, `src/data/mock-races.ts`는
+  `/f1/races/[slug]`(Phase 2)에서 F1 기준으로 재작성하며 정리 예정. D1 스키마의 미사용
+  테이블(`admin_sessions`, `manual_overrides`, `change_logs`, `ai_content_drafts`,
+  `race_facts`/`race_history`/`race_watch_targets`)과 `manual_overrides` 병합 로직은
+  운영 영향이 없어 후속 정리로 미룸. `source-runner`의 WRC user-agent 등은 시리즈 무관
+  인프라라 유지.
+- 검증: 각 제거 태스크마다 `npm run build` 통과, `node --import tsx --test src/lib/**/*.test.ts`
+  통과(admin/WEC/WRC/AI 테스트 제거로 최종 27개). 원격 D1/배포 변경은 하지 않음.
+- 다음 작업 경계: Phase 1(결과·순위 D1 테이블·마이그레이션 `0007` 후보, Jolpica 순위·결과
+  수집, 시드 병합, 대시보드형 홈·드라이버·팀 D1 연동). 원격 D1 마이그레이션 적용은
+  사용자 명시 요청 시에만.
+
 ## New Session Starter Prompt
 
 다른 컴퓨터의 새 Codex 스레드에서는 다음처럼 요청하면 됩니다.
