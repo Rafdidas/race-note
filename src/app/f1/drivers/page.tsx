@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
-import { f1Drivers } from "@/data/f1-season";
+import { getDriverStandings } from "@/lib/f1-data";
 
 export const metadata: Metadata = {
   title: "F1 드라이버",
   description: "2026 F1 드라이버 순위와 드라이버별 관전 포인트",
 };
 
-const rankedDrivers = f1Drivers.filter((driver) => driver.position && driver.points);
+const pad = (n: number) => String(n).padStart(2, "0");
 
-export default function F1DriversPage() {
+export default async function F1DriversPage() {
+  const drivers = await getDriverStandings();
+  const ranked = drivers.filter((d) => d.position < 9999);
   return (
     <div className="public-page f1-page f1-drivers-page">
       <PageHeader
@@ -23,9 +25,9 @@ export default function F1DriversPage() {
 
       <section className="f1-page__content container">
         <div className="f1-page__podium" aria-label="드라이버 순위 상위 3명">
-          {rankedDrivers.slice(0, 3).map((driver) => (
+          {ranked.slice(0, 3).map((driver) => (
             <article className="f1-page__podium-card" key={driver.slug}>
-              <span>{driver.position}</span>
+              <span>{pad(driver.position)}</span>
               <strong>{driver.name}</strong>
               <p>{driver.team}</p>
               <small>{driver.nationality} · {driver.points} PTS</small>
@@ -37,7 +39,7 @@ export default function F1DriversPage() {
       <section className="f1-page__content container">
         <div className="f1-page__section-heading">
           <SectionLabel index="02">드라이버 순위</SectionLabel>
-          <p className="type-korean">현재 화면 데이터는 공식 라인업과 임시 순위 요약을 바탕으로 한 전환용 데이터입니다.</p>
+          <p className="type-korean">순위와 포인트는 시즌 진행에 따라 자동 갱신됩니다.</p>
         </div>
         <div className="f1-page__table" role="table" aria-label="F1 드라이버 순위">
           <div className="f1-page__table-row f1-page__table-row--head" role="row">
@@ -47,9 +49,9 @@ export default function F1DriversPage() {
             <span>TEAM</span>
             <span>PTS</span>
           </div>
-          {rankedDrivers.map((driver) => (
+          {ranked.map((driver) => (
             <div className="f1-page__table-row" role="row" key={driver.slug}>
-              <span>{driver.position}</span>
+              <span>{pad(driver.position)}</span>
               <strong>{driver.name} <em>{driver.code}</em></strong>
               <span>{driver.nationality}</span>
               <span>{driver.team}</span>
@@ -65,7 +67,7 @@ export default function F1DriversPage() {
           <p className="type-korean">사진 없이 번호, 팀, 국적, 스타일 문장으로 드라이버를 구분합니다.</p>
         </div>
         <div className="f1-page__card-grid">
-          {f1Drivers.map((driver) => (
+          {drivers.map((driver) => (
             <article className="f1-page__driver-card" key={driver.slug}>
               <div>
                 <span>#{driver.number}</span>

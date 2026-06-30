@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
-import { f1Teams } from "@/data/f1-season";
+import { getConstructorStandings } from "@/lib/f1-data";
 
 export const metadata: Metadata = {
   title: "F1 팀",
   description: "2026 F1 팀 라인업과 팀별 관전 포인트",
 };
 
-const rankedTeams = f1Teams.filter((team) => team.position && team.points);
+const pad = (n: number) => String(n).padStart(2, "0");
 
-export default function F1TeamsPage() {
+export default async function F1TeamsPage() {
+  const teams = await getConstructorStandings();
+  const rankedTeams = teams.filter((team) => team.position < 9999);
   return (
     <div className="public-page f1-page f1-teams-page">
       <PageHeader
@@ -25,7 +27,7 @@ export default function F1TeamsPage() {
         <div className="f1-page__podium f1-page__podium--teams" aria-label="컨스트럭터 순위 상위 3팀">
           {rankedTeams.slice(0, 3).map((team) => (
             <article className={`f1-page__podium-card f1-page__team-tone--${team.tone}`} key={team.slug}>
-              <span>{team.position}</span>
+              <span>{pad(team.position)}</span>
               <strong>{team.name}</strong>
               <p>{team.drivers.join(" / ")}</p>
               <small>{team.points} PTS</small>
@@ -47,13 +49,13 @@ export default function F1TeamsPage() {
             <span>CAR</span>
             <span>PTS</span>
           </div>
-          {f1Teams.map((team) => (
+          {rankedTeams.map((team) => (
             <div className="f1-page__table-row" role="row" key={team.slug}>
-              <span>{team.position ?? "--"}</span>
+              <span>{pad(team.position)}</span>
               <strong>{team.name}</strong>
               <span>{team.drivers.join(" / ")}</span>
               <span>{team.car}</span>
-              <span>{team.points ?? "--"}</span>
+              <span>{team.points}</span>
             </div>
           ))}
         </div>
@@ -65,10 +67,10 @@ export default function F1TeamsPage() {
           <p className="type-korean">공식 로고 대신 팀 컬러 라인, 순위, 드라이버 조합, 설명 문장으로 구분합니다.</p>
         </div>
         <div className="f1-page__card-grid f1-page__card-grid--teams">
-          {f1Teams.map((team) => (
+          {teams.map((team) => (
             <article className={`f1-page__team-card f1-page__team-tone--${team.tone}`} key={team.slug}>
               <div>
-                <span>{team.position ? `P/${team.position}` : "TEAM"}</span>
+                <span>{team.position < 9999 ? `P/${pad(team.position)}` : "TEAM"}</span>
                 <small>{team.car}</small>
               </div>
               <h2>{team.name}</h2>
