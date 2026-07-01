@@ -36,6 +36,11 @@ export async function runF1ScheduleSync(db: RaceNoteDb, fetcher: typeof fetch = 
   try {
     const standings = await fetchJson(fetcher, `${BASE}/${SEASON}/driverStandings/`);
     await upsertDriverStandings(db, SEASON, parseJolpicaDriverStandings(standings, SEASON), now);
+  } catch (error) {
+    console.error("F1 driver standings sync failed", error);
+  }
+
+  try {
     const constructors = await fetchJson(fetcher, `${BASE}/${SEASON}/constructorStandings/`);
     await upsertConstructorStandings(
       db,
@@ -44,7 +49,7 @@ export async function runF1ScheduleSync(db: RaceNoteDb, fetcher: typeof fetch = 
       now,
     );
   } catch (error) {
-    console.error("F1 standings sync failed", error);
+    console.error("F1 constructor standings sync failed", error);
   }
 
   try {
