@@ -969,8 +969,48 @@ Formula1.com 참고 URL:
   `0000`~`0007` 마이그레이션을 메모리 DB에 순차 적용해 외래키 위반 0건, 테이블 16개
   생성 확인(로컬에 `sqlite3` CLI가 없어 Node 내장 `node:sqlite`로 대체 검증). 홈 화면은
   Claude Preview MCP로 라이트/다크, 데스크톱/모바일, 콘솔 오류 없음을 확인했습니다.
-- 원격 D1에는 `0007` 마이그레이션을 적용하지 않았습니다(사용자 명시 요청 시에만). 배포도
-  하지 않았습니다.
+- 원격 D1 마이그레이션과 배포는 이 시점에는 하지 않았습니다(사용자 명시 요청 시에만).
+  아래 별도 항목에서 사용자 요청에 따라 반영했습니다.
+
+2026-06-30 최종 브랜치 리뷰(Opus, `439a042..532fb0c`)를 완료했습니다.
+
+- Critical 0건, Important 1건, Minor 4건.
+- Important: `src/lib/sync/f1-sync.ts`에서 드라이버 순위와 컨스트럭터 순위 수집이
+  하나의 `try`에 묶여 있어 드라이버 순위 수집 실패 시 정상인 컨스트럭터 순위 수집까지
+  건너뛰는 문제. 두 개의 독립된 `try/catch`(결과 수집까지 총 3개 독립 블록)로 분리해
+  수정했습니다(commit `d5b2c30`).
+- Minor 4건은 병합을 막지 않는 후속 과제로 기록만 합니다: (1) `f1-sync.ts`의
+  `User-Agent` 하드코딩이 `source-runner.ts`의 `RACENOTE_USER_AGENT`와 중복(추후
+  상수 공유로 통합), (2) `worker-configuration.d.ts`가 여전히
+  `ADMIN_PASSWORD`/`ADMIN_SESSION_SECRET`/`OPENAI_API_KEY`를 선언 — 이 파일은
+  로컬 `wrangler types` 실행 시 로컬 env 파일 기준으로 재생성되므로, 코드 수정으로는
+  없앨 수 없고 로컬 env 정리 후 재생성이 필요(원격 Worker 시크릿 자체는 별개 문제로
+  확인되지 않음, 재확인 필요), (3) `src/app/home.scss`의 완료 라운드 마커 색상
+  `#087b78` 1곳이 토큰 없이 하드코딩(다른 팀 컬러들은 기존 `public-pages.scss` 패턴과
+  일치해 문제 없음), (4) 빌드 시 정적 페이지 프로브 단계에서 `getDb()` 폴백이
+  `console.error`로 매번 로그를 남겨 다소 시끄러움(기능상 무해).
+- 재검증: `npm run build`, `npm run cf:build`, `node --import tsx --test
+  src/lib/**/*.test.ts` 34개 모두 통과.
+- 총 19개 커밋(`439a042..d5b2c30`)을 원격 `origin/main`에 push했습니다(사용자 요청).
+
+2026-06-30 원격 D1 마이그레이션 적용과 Cloudflare Worker 배포를 완료했습니다(사용자
+명시 요청).
+
+- `npx wrangler d1 migrations apply racenote-db --remote`로 `0007_f1_results_standings.sql`
+  적용. 적용 전 보류 마이그레이션은 이 파일 하나뿐이었습니다.
+- 원격 `PRAGMA foreign_key_check` 위반 0건, `race_results`/`driver_standings`/
+  `constructor_standings` 3개 테이블 생성 확인, 이후 보류 마이그레이션 없음 확인.
+- `npm run cf:build` 후 Windows 로컬 배포 제약(PROJECT_HANDOFF.md 기존 Known Notes 참고)에
+  따라 `OPEN_NEXT_DEPLOY=true npx wrangler deploy`로 직접 배포했습니다. Worker 버전
+  `f1bb6827-1d6d-4ee6-b0e7-e0751b9d247c`, Cron `0 0 * * *`/`0 12 * * *` 유지, `env.DB`
+  바인딩 확인.
+- 배포 확인: `/`, `/f1/drivers`, `/f1/teams`, `/f1/guide` HTTP 200. 삭제된 `/calendar`,
+  `/admin`은 HTTP 404. 홈 콘텐츠에 드라이버 이름(Antonelli 등)과 드라이버/컨스트럭터
+  순위 섹션이 정상 렌더링됨을 확인했습니다.
+- 배포 시점 원격 `driver_standings`/`constructor_standings`/`race_results`는 0행입니다.
+  아직 신규 Cron(`0 0 * * *`/`0 12 * * *`)이 배포 이후 실행되지 않았기 때문이며, 현재
+  공개 화면은 정상적으로 시드 폴백을 렌더링합니다. 다음 Cron 실행 이후 실제 순위/결과
+  데이터가 채워지는지 확인이 필요합니다.
 - 다음 작업 경계: Phase 2(`/f1/drivers/[slug]`, `/f1/teams/[slug]`(머신 정보 포함),
   `/f1/races/[slug]`(코스 정보·결과 포함) 상세 페이지, `src/lib/public-data.ts`/
   `src/data/mock-races.ts`를 F1 기준으로 재작성하며 정리), Phase 3(네이버 뉴스 API
