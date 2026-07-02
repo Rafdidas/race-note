@@ -10,7 +10,7 @@ import type { NormalizedRace } from "@/lib/sync/types";
 
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_SOURCE_BYTES = 3_000_000;
-const RACENOTE_USER_AGENT = "RaceNote/1.0 (+https://race-note.rafdi.workers.dev)";
+export const RACENOTE_USER_AGENT = "RaceNote/1.0 (+https://race-note.rafdi.workers.dev)";
 const SAFE_MESSAGE_MAX_LEN = 160;
 const ERR_RESPONSE_TOO_LARGE = "Schedule source response was too large";
 
