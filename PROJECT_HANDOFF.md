@@ -1011,6 +1011,32 @@ Formula1.com 참고 URL:
   아직 신규 Cron(`0 0 * * *`/`0 12 * * *`)이 배포 이후 실행되지 않았기 때문이며, 현재
   공개 화면은 정상적으로 시드 폴백을 렌더링합니다. 다음 Cron 실행 이후 실제 순위/결과
   데이터가 채워지는지 확인이 필요합니다.
+
+2026-07-02 새 Worker의 첫 Cron(00:00 UTC)이 Jolpica HTTP 429로 실패해 수집 안정화
+수정을 배포했습니다.
+
+- 증상: `sync_logs`에 `F1 source returned HTTP 429`(2026-07-02T00:00:36Z) 기록,
+  원격 순위/결과 테이블 0행 유지. Jolpica 2026 데이터 자체는 정상 존재(라운드 8 기준
+  순위·결과 확인)이므로 데이터 소스 문제가 아닙니다.
+- 원인 분석: (1) 정각(00:00/12:00 UTC)은 전 세계 Cron이 몰려 Jolpica가 공유
+  Cloudflare egress IP 기준으로 가장 강하게 레이트리밋하는 시각. (2) `runScheduleSource`는
+  실패를 `sync_logs`에 기록한 뒤 rethrow하므로, 일정 수집 429 하나로 이어지는 순위·결과
+  수집까지 전부 스킵됨. (3) 429/5xx 일시 오류에 재시도가 없었음.
+- 수정(commit `16f406d`, Worker 버전 `9bfd0423-4972-4070-ae68-0d2f20a4b42d`):
+  - Cron을 `23 1 * * *`, `23 13 * * *`(01:23/13:23 UTC = 10:23/22:23 KST)로 이동해
+    정각 스탬피드를 회피.
+  - `src/lib/sync/f1-sync.ts`에 `fetchJolpicaJson` 도입: 429/5xx이면 3초 후 1회 재시도.
+    테스트 4개 추가(`f1-sync.test.ts`, 재시도 성공/재실패/비재시도 구분).
+  - 일정 수집 실패를 보관했다가 순위·결과 수집을 마친 뒤 rethrow하도록 변경 —
+    일정 429가 순위·결과 수집을 막지 않음(실패 기록·전파 동작은 유지).
+  - 최종 리뷰 Minor였던 User-Agent 중복 해소: `source-runner.ts`의
+    `RACENOTE_USER_AGENT`를 export해 재사용.
+- 검증: 테스트 38개 통과, `npm run lint`(0 오류), `npm run build`, `npm run cf:build`
+  통과, 배포 후 Cron 트리거 2종 확인, `origin/main` push 완료.
+- 남은 확인: 다음 Cron(2026-07-02 01:23 UTC = 10:23 KST) 이후 원격
+  `driver_standings`(22행 기대)/`constructor_standings`(11행 기대)/`race_results`
+  (약 20행 기대)가 채워지고 공개 화면 순위가 시드가 아닌 D1 값(예: Antonelli 171pts,
+  라운드 8 기준)으로 갱신되는지 확인해야 합니다.
 - 다음 작업 경계: Phase 2(`/f1/drivers/[slug]`, `/f1/teams/[slug]`(머신 정보 포함),
   `/f1/races/[slug]`(코스 정보·결과 포함) 상세 페이지, `src/lib/public-data.ts`/
   `src/data/mock-races.ts`를 F1 기준으로 재작성하며 정리), Phase 3(네이버 뉴스 API
